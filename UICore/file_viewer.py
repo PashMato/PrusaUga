@@ -3,7 +3,7 @@ import pygame as pg
 import os
 import glob
 
-from UI_heandler.UI_helper import TextButton, Button, Canvas
+from UICore.UI_helper import TextButton, Button, Canvas
 
 
 class File(TextButton):
@@ -50,12 +50,12 @@ class File(TextButton):
 
 class FileManager:
     def __init__(self, start_path: str, layer: int, position_offset: np.array = np.array([0, 0])):
-        self.current_path = start_path
+        self.current_path = os.path.abspath(start_path)
         self.files = []
         self.layer = layer
         self.offset_position = position_offset
         self.update_files()
-        self.selected_path = ""
+        self._selected_path = ""
 
         surface = pg.image.load("UI_Images/Back.png")
         position = np.array([30, 30])
@@ -64,11 +64,11 @@ class FileManager:
                                   alpha=150, position_offset=position_offset, static=False)
 
     def update_files(self):
-        all_relevent_files = glob.glob(self.current_path + "*.png") + os.listdir(self.current_path)
+        all_relevent_files = os.listdir(self.current_path)
         self.files = []
         File.Id = 0
         for file in all_relevent_files:
-            if file[0] != "." or file[-4:] == ".png":
+            if file[0] != "." and (os.path.isdir(self.current_path + "/" + file) or file[-4:] == ".png"):
                 file_path = self.current_path + "/" + file
                 self.files.append(File(file_path, self.layer, self.offset_position))
 
@@ -78,19 +78,25 @@ class FileManager:
 
         self.back_button.draw(pg.display.get_surface())
 
-        if self.back_button.is_clicked:
-            self.current_path = os.path.abspath("..")
+        if self.back_button.is_clicked and os.path.exists(os.path.abspath(self.current_path + "/..")):
+            self.current_path = os.path.abspath(self.current_path + "/..")
             self.update_files()
             return
 
         for file in self.files:
             file.draw()
             if file.is_clicked:
-                if len(file.path) >= 5 and file.path[-4:] == ".png":
-                    self.selected_path = file.path
+                if len(file.path) >= 5 and file.path[-4:] == ".png" and os.path.exists(file.path):
+                    self._selected_path = file.path
                     Canvas.PaintedLayer += 1
-                elif "." not in file.path:
+                elif "." not in file.path.split("/")[-1] and os.path.exists(file.path):
                     self.current_path = file.path
                     self.update_files()
                 break
+
+    def read_selected_path(self):
+        if self._selected_path == "":
+            return None
+        return self._selected_path
+
 

@@ -3,7 +3,7 @@ import pygame as pg
 import time
 import os
 from data import Data, KcodeManager
-from UI_heandler.UI_helper import Canvas, Button, Text
+from UICore.UI_helper import Canvas, Button, Text
 
 
 class KcodeVisualReader(Canvas):

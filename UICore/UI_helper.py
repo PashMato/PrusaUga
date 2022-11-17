@@ -66,6 +66,7 @@ class Button(Canvas):  # a class that handle buttons
         self.front_surface.set_alpha(alpha)
 
         self.is_clicked = False
+        self.last_frame_is_clicked = False
         self.is_mouse_on = False
 
         self.static = static  # if the Button is static it would be static on the screen
@@ -79,6 +80,10 @@ class Button(Canvas):  # a class that handle buttons
 
     # handle when the Button is pressed
     def update(self):
+
+        if self.is_clicked:
+            print(self.is_clicked)
+
         right_bottom = np.array(self.surface.get_size()) + self.position + self.position_offset + \
                        Canvas.Offset * (not self.static)
 
@@ -91,12 +96,18 @@ class Button(Canvas):  # a class that handle buttons
             self.is_mouse_on = True
             self.surface = self.back_surface
 
-            if pg.mouse.get_pressed(3)[0]:
+            if pg.mouse.get_pressed(3)[0] and not self.last_frame_is_clicked:
                 self.is_clicked = True
+                self.last_frame_is_clicked = True
+            elif self.last_frame_is_clicked:
+                self.is_clicked = False
+                self.last_frame_is_clicked = True
+
         else:
             self.surface = self.front_surface
             self.is_mouse_on = False
             self.is_clicked = False
+            self.last_frame_is_clicked = False
 
 
 class Text(Canvas):  # a class that handle text

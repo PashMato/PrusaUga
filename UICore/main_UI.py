@@ -1,7 +1,10 @@
 import numpy as np
 import pygame as pg
-from UI_heandler.UI_helper import Canvas, TextButton
-from UI_heandler.file_viewer import FileManager
+from UICore.UI_helper import Canvas, TextButton
+from UICore.file_viewer import FileManager
+
+from PythonCore.image_to_lines import ImageToLines
+from UICore.Kcode_visual_reader import KcodeVisualReader
 
 
 class MainUI:
@@ -15,6 +18,10 @@ class MainUI:
         self.keep_running = True
         self.screen = pg.display.set_mode((850, 600))
         self.clock = pg.time.Clock()
+
+        pg.display.set_caption("Pusha Slicer")
+
+        self.im2lines = None
         self.raster_simulation = None
         self.circles_simulation = None
         self.CP = None
@@ -38,6 +45,20 @@ class MainUI:
 
         Canvas.Offset[1] *= int(Canvas.Offset[1] < 0)
         Canvas.Offset[1] = int(Canvas.Offset[1] < -750) * -750 + int(Canvas.Offset[1] >= -750) * Canvas.Offset[1]
+
+        # handle the file manager
+        if self.file_manager is not None:
+            # draws the file manager when needed
+            self.file_manager.draw()
+
+            # set up the system when you pick a file
+            if self.file_manager.read_selected_path() is not None:
+                self.im2lines = ImageToLines(self.file_manager.read_selected_path())
+                self.im2lines.get_k_code(raster_mode=True)
+                self.raster_simulation = KcodeVisualReader(self.im2lines.Kcode_manager)
+                self.im2lines.get_k_code(raster_mode=False)
+                self.circles_simulation = KcodeVisualReader(self.im2lines.Kcode_manager)
+                self.file_manager = None
 
         # handle display simulation
         if self.raster_simulation is not None:
@@ -64,8 +85,6 @@ class MainUI:
 
         self.export_raster_button.draw(self.screen)
         self.export_circles_button.draw(self.screen)
-
-        self.file_manager.draw()
 
         pg.display.flip()
         self.clock.tick(25)
