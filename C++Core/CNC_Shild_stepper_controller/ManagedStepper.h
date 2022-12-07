@@ -1,5 +1,3 @@
-#include <Stepper.h>
-
 #define EnablePin 8
 #define Null 0
 #define True 1
@@ -16,8 +14,8 @@ class ManagedStepper
     
     unsigned long _startTime = 0;
     unsigned long _lastStepTime = 0;
+    unsigned long _size = 0;
     bool _HIGHorLOW = true;
-    short _clockwise = True;
     
     short _forbiddenDir = Null;
     
@@ -25,8 +23,10 @@ class ManagedStepper
         int _microSwitchPin;
         bool _state = false;
         
-        long _stepedSteps = 0;
-        
+        unsigned long _position = 0;
+        unsigned long _target = 0;
+        unsigned long _remaingTime = 0;
+
         ManagedStepper(int dirP, int stepP, int microSwitchP) {
 
             _microSwitchPin = microSwitchP;
@@ -38,9 +38,15 @@ class ManagedStepper
             pinMode(_stepPin, OUTPUT);
         }
 
-        void setSpeed(short stepsPerSecond)
+        bool goTo(unsigned long target, unsigned long remaingTime) // makes the stepper move to a piont in a certenct time
         {
-          if (_forbiddenDir == sign(stepsPerSecond)) return;
+          _target = target;
+          _remaingTime = remaingTime;
+        }
+        
+        void setSpeed(short stepsPerSecond) // sets the speed os the stepper
+        {
+          if (_forbiddenDir == sign(stepsPerSecond) && _forbiddenDir) return;
           digitalWrite(_dirPin, sign(sign(stepsPerSecond) + 1));
           _stepsPerSecond  = stepsPerSecond;
           _startTime = millis();
@@ -53,23 +59,26 @@ class ManagedStepper
         
         virtual void update()
         {
-          unsigned long currentStepTime = millis();
-          if (currentStepTime - _lastStepTime <= 1) return;
-          if (abs(short((currentStepTime - _startTime) * _stepsPerSecond / 1000 - _stepedSteps)) <= 0) return;
-
           // Heandle Micro Switch
-          _state = digitalRead(_microSwitchPin);
-          if (_state)
+          _state = -digitalRead(_microSwitchPin) + 1;
+          if (_state && _forbiddenDir == 0)
           {
             _forbiddenDir = sign(_stepsPerSecond);
+            _position = sign(sign(_stepsPerSecond) + 1) * _size;
+            _target = _position;
+            _remaingTime = 0;
             setSpeed(0);
+            return;
           }
           else
           {
             _forbiddenDir = Null;
+            setSpeed(short((_target - _position) / _remaingTime));
           }
-          
-          _stepedSteps += _HIGHorLOW * sign(_stepsPerSecond);
+
+          unsigned long currentStepTime = millis();
+          if (short((currentStepTime - _startTime) * _stepsPerSecond / 1000) == 0 || (_forbiddenDir != 0 && _forbiddenDir == sign(_stepsPerSecond))) return; 
+          _position += _HIGHorLOW * sign(_stepsPerSecond);
           digitalWrite(_stepPin, _HIGHorLOW);
           _HIGHorLOW = !_HIGHorLOW;
           _lastStepTime = currentStepTime;

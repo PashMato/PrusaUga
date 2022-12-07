@@ -1,7 +1,6 @@
 import numpy as np
 import pygame as pg
 import os
-import glob
 
 from UICore.UI_helper import TextButton, Button, Canvas
 
@@ -31,6 +30,7 @@ class File(TextButton):
         surface = pg.Surface(File.CanvasSize + 10)
         surface.fill((20, 20, 20))
         back_surface = surface.copy()
+
         surface.blit(image,
                      ((surface.get_width() - image.get_width()) // 2, (surface.get_height() - image.get_height()) // 2))
 
@@ -41,31 +41,49 @@ class File(TextButton):
         position[0] += (pg.display.get_surface().get_width() - (File.FilesInLine - 1) * (File.CanvasSize[0] + 20)) // 2
         position[1] += 40 + File.CanvasSize[1] // 2
 
-        super(File, self).__init__(position, layer, name, (150, 10, 50), 25, font_type="Oswald",
-                                   position_offset=position_offset, bg_surface=surface, bbg_surface=back_surface)
+        color = (150, 10, 50)
+
+        super(File, self).__init__(position, layer, name, color, 20, font_type="Arial",
+                               position_offset=position_offset, alpha=18, bg_surface=surface, bbg_surface=back_surface)
         self.path = path
 
         File.Id += 1
+    
+    def draw(self, surface: pg.Surface = None):
+        super(File, self).draw(surface=surface)
 
 
 class FileManager:
-    def __init__(self, start_path: str, layer: int, position_offset: np.array = np.array([0, 0])):
+    def __init__(self, start_path: str, layer: int,
+                 position_offset: np.array = np.array([0, 0]), allow_select_files: bool = False):
         self.current_path = os.path.abspath(start_path)
         self.files = []
         self.layer = layer
         self.offset_position = position_offset
         self.update_files()
-        self._selected_path = ""
+        self._chosen_path: str = ""
 
-        surface = pg.image.load("UI_Images/Back.png")
-        position = np.array([30, 30])
+        self._selected_path: str = ""
+        self._selected_file: File = None
 
-        self.back_button = Button(surface, position, self.layer,
+        self.allow_select_files: bool = allow_select_files
+
+        surface: pg.Surface = pg.image.load("UI_Images/Back.png")
+        position: np.array = np.array([30, 30])
+
+        self.back_button: Button = Button(surface, position, self.layer,
+                                  alpha=150, position_offset=position_offset, static=False)
+
+        surface = pg.image.load("UI_Images/Open.png")
+        position = np.array([pg.display.get_surface().get_width() - 30, 30])
+
+        self.open_button: Button = Button(surface, position, self.layer,
                                   alpha=150, position_offset=position_offset, static=False)
 
     def update_files(self):
         all_relevent_files = os.listdir(self.current_path)
         self.files = []
+        self._selected_file = None
         File.Id = 0
         for file in all_relevent_files:
             if file[0] != "." and (os.path.isdir(self.current_path + "/" + file) or file[-4:] == ".png"):
@@ -77,26 +95,37 @@ class FileManager:
             return
 
         self.back_button.draw(pg.display.get_surface())
+        self.open_button.draw(pg.display.get_surface())
 
         if self.back_button.is_clicked and os.path.exists(os.path.abspath(self.current_path + "/..")):
             self.current_path = os.path.abspath(self.current_path + "/..")
             self.update_files()
             return
 
+        if self.open_button.is_clicked:
+            self._chosen_path = self._selected_path
+            Canvas.PaintedLayer += 1
+
         for file in self.files:
             file.draw()
-            if file.is_clicked:
-                if len(file.path) >= 5 and file.path[-4:] == ".png" and os.path.exists(file.path):
-                    self._selected_path = file.path
-                    Canvas.PaintedLayer += 1
-                elif "." not in file.path.split("/")[-1] and os.path.exists(file.path):
+            if file.is_double_clicked:
+                if file.path.split("/")[-1][0] != "." and os.path.exists(file.path) and os.path.isdir(file.path):
                     self.current_path = file.path
                     self.update_files()
                 break
+            elif file.is_clicked and os.path.exists(file.path):
+                if not self.allow_select_files and os.path.isdir(file.path):
+                    continue
+                if self._selected_file is not None:
+                    self._selected_file.highligh_bg(False)
+                self._selected_path = file.path
+                self._selected_file = file
+                self._selected_file.highligh_bg(True)
 
     def read_selected_path(self):
-        if self._selected_path == "":
+        if self._chosen_path == "":
             return None
-        return self._selected_path
+        return self._chosen_path
+
 
 

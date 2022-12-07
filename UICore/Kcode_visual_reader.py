@@ -2,7 +2,7 @@ import numpy as np
 import pygame as pg
 import time
 import os
-from data import Data, KcodeManager
+from PythonCore.data import Data, KcodeManager
 from UICore.UI_helper import Canvas, Button, Text
 
 
@@ -29,6 +29,7 @@ class KcodeVisualReader(Canvas):
         self.dt = time.time()
 
         self.CP = cp
+        self.CP.to_k_code()
 
         # set up the replay button
         back_surface = pg.transform.scale(pg.image.load(os.path.abspath("UI_Images/Replay.png")), (60, 60))
@@ -52,26 +53,26 @@ class KcodeVisualReader(Canvas):
     def draw(self, surface: pg.Surface = None):
         if self.layer != Canvas.PaintedLayer:
             return
-        # check if there are steps to step
-        if self._cp_pointer < len(self.CP.commands_protocols):
-            # check if enough time passed
-            if (time.time() - self.dt) * self.Speed >= self.CP.commands_protocols[self._cp_pointer].time:
-                command_protocol = self.CP.commands_protocols[self._cp_pointer]
 
-                start_pos = np.dot(np.array([[0, 1], [1, 0]]), command_protocol.start_position * self.factor) + 10
-                end_pos = np.dot(np.array([[0, 1], [1, 0]]), command_protocol.end_position * self.factor) + 10
+        # check if there are steps to step and enough time passed
+        if self._cp_pointer < len(self.CP.commands_protocols) and\
+                (time.time() - self.dt) * self.Speed >= self.CP.commands_protocols[self._cp_pointer].time:
+            command_protocol = self.CP.commands_protocols[self._cp_pointer]
 
-                if command_protocol.should_print:
-                    # draws the current step
-                    pg.draw.circle(self.canvas, (10, 10, 255), start_pos, 3)
-                    pg.draw.circle(self.canvas, (10, 10, 255), end_pos, 3)
-                    pg.draw.line(self.canvas, (10, 10, 255), start_pos, end_pos, 2)
-                else:
-                    # draws the current step (the head is up)
-                    pg.draw.line(self.canvas, (100, 10, 10), start_pos, end_pos, 1)
+            start_pos = np.dot(np.array([[0, 1], [1, 0]]), command_protocol.start_position * self.factor) + 10
+            end_pos = np.dot(np.array([[0, 1], [1, 0]]), command_protocol.end_position * self.factor) + 10
 
-                self._cp_pointer += 1
-                self.dt = time.time()
+            if command_protocol.should_print:
+                # draws the current step
+                pg.draw.circle(self.canvas, (10, 10, 255), start_pos, 3)
+                pg.draw.circle(self.canvas, (10, 10, 255), end_pos, 3)
+                pg.draw.line(self.canvas, (10, 10, 255), start_pos, end_pos, 2)
+            else:
+                # draws the current step (the head is up)
+                pg.draw.line(self.canvas, (100, 10, 10), start_pos, end_pos, 1)
+
+            self._cp_pointer += 1
+            self.dt = time.time()
 
         # draws all the surfaces on each other
         self.surface.blit(self.canvas, (0, 20))

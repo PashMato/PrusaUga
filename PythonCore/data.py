@@ -1,3 +1,4 @@
+import numpy as np
 from matplotlib.pyplot import *
 
 
@@ -22,10 +23,10 @@ class KcodeManager:
         self.times_head_up = 0
         self.removed_points = 0
         self.overall_commands = 0
-        self.k_code = []
+        self.k_code: np.array = np.array([], dtype=np.float32)
 
     def to_k_code(self):
-        self.k_code = []
+        self.k_code = np.array([], dtype=np.float32)
         commands_protocols = self.commands_protocols.copy()
         n1 = 0
         self.overall_commands = len(self.commands_protocols)
@@ -35,19 +36,26 @@ class KcodeManager:
                 commands_protocols.pop(n1)
 
                 continue
-            self.k_code += command_protocol.to_k_code()
+            np.concatenate((self.k_code, command_protocol.to_k_code()))
             self.times_head_up -= command_protocol.should_print - 1
             n1 += 1
 
         self.commands_protocols = commands_protocols
         return self.k_code
 
+    def write_file(self, file_name):
+        if len(self.k_code) > 2:
+            self.k_code.tofile(file_name + ".kcode")
+        else:
+            self.to_k_code().tofile(file_name + ".kcode")
+
     def Kshow(self, color="b", size="."):
         figure()
         for line in self.commands_protocols:
             if line.should_print:
                 plot([line.start_position[1], line.end_position[1]], [line.start_position[0], line.end_position[0]], color + size, linestyle="-")
-        table(cellText=[[f"Head up: {self.times_head_up}", f"Removed Points: {self.removed_points}", f"Overall cammands: {self.overall_commands}"]], cellLoc="left", loc="top", edges="open")
+        table(cellText=[[f"Head up: {self.times_head_up}", f"Removed Points: {self.removed_points}",
+                         f"Overall commands: {self.overall_commands}"]], cellLoc="left", loc="top", edges="open")
         gca().invert_yaxis()
         xlabel(self.label)
 
@@ -64,8 +72,8 @@ class CommandProtocol:
         self.length = np.linalg.norm(self.end_position - self.start_position) * Data.PointsRes
         self.time = self.length / Data.HeadMovingSpeed
 
-        return f"{self.end_position[1] * Data.PointsRes} {self.end_position[0] * Data.PointsRes} " \
-               f"{self.should_print.as_integer_ratio()[0]} {self.time}"
+        return np.array([self.end_position[1] * Data.PointsRes, self.end_position[0] * Data.PointsRes,
+                         self.should_print.as_integer_ratio()[0], self.time], dtype=np.float32)
 
     def str(self):
         return f"{self.end_position[1]} {self.end_position[0]} {self.should_print.as_integer_ratio()[0]}"

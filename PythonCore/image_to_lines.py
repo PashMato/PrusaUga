@@ -1,12 +1,13 @@
 import os
 
 from matplotlib.pyplot import *
-from data import Data, KcodeManager, CommandProtocol
+from PythonCore.data import Data, KcodeManager, CommandProtocol
 
 
 class ImageToLines:
-    def __init__(self, path):
+    def __init__(self, path: str):
         self.image = imread(os.path.abspath(path))
+        self.name = path.split("/")[-1]
         self.out_matrix = np.zeros(self.image.shape[:2])
         self.get_matrix()
         self.Kcode_manager = KcodeManager("None", [])
@@ -48,7 +49,6 @@ class ImageToLines:
                 matrix -= last_edge
                 Kcode_manager.commands_protocols += get_rastered_k_code(last_edge).commands_protocols
             self.Kcode_manager = Kcode_manager
-        return self.Kcode_manager.to_k_code()
 
     @staticmethod
     def read_position(image: np.ndarray, x: int, y: int, readSize = True):

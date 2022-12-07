@@ -1,7 +1,7 @@
-from PythonCore.image_to_lines import ImageToLines
+#!/home/pash/PycharmProjects/PrushaUga/venv/bin/python3
 from UICore.main_UI import MainUI
-from UICore.Kcode_visual_reader import KcodeVisualReader
-im2lines = ImageToLines("ExmpleImages/text.png")
 
-UI = MainUI()
-UI.start()
+
+if __name__ == "__main__":
+    UI = MainUI()
+    UI.start()
