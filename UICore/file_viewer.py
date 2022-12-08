@@ -44,7 +44,7 @@ class File(TextButton):
         color = (150, 10, 50)
 
         super(File, self).__init__(position, layer, name, color, 20, font_type="Arial",
-                               position_offset=position_offset, alpha=18, bg_surface=surface, bbg_surface=back_surface)
+                               position_offset=position_offset, alpha=180, bg_surface=surface, bbg_surface=back_surface)
         self.path = path
 
         File.Id += 1
