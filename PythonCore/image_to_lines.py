@@ -10,53 +10,54 @@ class ImageToLines:
         self.name = path.split("/")[-1]
         self.out_matrix = np.zeros(self.image.shape[:2])
         self.get_matrix()
-        self.Kcode_manager = KcodeManager("None", [])
+        self.Kcode_manager = KcodeManager("None", []) # noqa
 
     def get_matrix(self):
         occupancy = self.image[:, :, 3] != 0
         size0 = list(np.argwhere(occupancy.any(axis=0))[[0, -1]])
         size1 = list(np.argwhere(occupancy.any(axis=1))[[0, -1]])
-        croped_occupancy = occupancy[size1[0][0]:size1[1][0], size0[0][0]:size0[1][0]]
+        crop_occupancy = occupancy[size1[0][0]:size1[1][0], size0[0][0]:size0[1][0]]
 
-        Data.set_up(croped_occupancy.shape)
-        out_matrix = np.zeros(np.array(croped_occupancy.shape) // Data.HeadWidth + 1)
+        Data.set_up(crop_occupancy.shape)
+        out_matrix = np.zeros(np.array(crop_occupancy.shape) // Data.KernelSize + 1)
         for i in range(len(out_matrix)):
             for j in range(len(out_matrix[0])):
-                out_matrix[i][j] = np.any(ImageToLines.read_position(croped_occupancy, j, i))
+                out_matrix[i][j] = np.any(ImageToLines.read_position(crop_occupancy, j, i))
         self.out_matrix = out_matrix
 
-    def get_k_code(self, raster_mode: bool = False):
-        def get_rastered_k_code(matrix: np.ndarray):
-            matrix, command_protocol, is_done = ImageToLines.get_next_move(matrix, np.array(matrix.shape) // 2)
-            Kcode_Manager = KcodeManager(["Raster", "Circles"][np.argwhere(np.array([True, False]) == raster_mode)[0][0]], [command_protocol])
+    def get_k_code(self, raster_mode: bool = False) -> KcodeManager:
+        def get_raster_k_code(img_as_matrix: np.ndarray):
+            img_as_matrix, command_protocol, is_done = ImageToLines.get_next_move(img_as_matrix, np.array(img_as_matrix.shape) // 2)
+            Kcode_Manager = KcodeManager(["Raster", "Circles"][np.argwhere(np.array([True, False]) == raster_mode)[0][0]], [command_protocol]) # noqa
 
             if command_protocol is not None:
                 Kcode_Manager.commands_protocols.append(command_protocol)
 
             while not is_done:
-                matrix, command_protocol, is_done = ImageToLines.get_next_move(matrix, command_protocol.end_position)
+                img_as_matrix, command_protocol, is_done = ImageToLines.get_next_move(img_as_matrix, command_protocol.end_position)
                 if command_protocol is not None:
                     Kcode_Manager.commands_protocols.append(command_protocol)
             return Kcode_Manager
 
         if raster_mode:
-            self.Kcode_manager = get_rastered_k_code(self.out_matrix.copy())
+            self.Kcode_manager = get_raster_k_code(self.out_matrix.copy()) # noqa
         else:
             matrix = self.out_matrix.copy()
-            Kcode_manager = KcodeManager("Circles", [])
+            Kcode_manager = KcodeManager("Circles", []) # noqa
             while matrix.any():
                 last_edge = ImageToLines.get_edge(matrix)
                 matrix -= last_edge
-                Kcode_manager.commands_protocols += get_rastered_k_code(last_edge).commands_protocols
-            self.Kcode_manager = Kcode_manager
+                Kcode_manager.commands_protocols += get_raster_k_code(last_edge).commands_protocols
+            self.Kcode_manager = Kcode_manager # noqa
+        return self.Kcode_manager
 
     @staticmethod
-    def read_position(image: np.ndarray, x: int, y: int, readSize = True):
-        if readSize:
-            readSize = Data.HeadWidth
-        x *= readSize
-        y *= readSize
-        x1, y1 = x + readSize, y + readSize
+    def read_position(image: np.ndarray, x: int, y: int, read_size = True):
+        if read_size:
+            read_size = Data.KernelSize
+        x *= read_size
+        y *= read_size
+        x1, y1 = x + read_size, y + read_size
         if x1 > len(image[0]):
             x1 = len(image[0])
         if y1 > len(image):
@@ -65,7 +66,7 @@ class ImageToLines:
         return image[y:y1, x:x1]
 
     @staticmethod
-    def Kernel(matrix: np.matrix, x: int, y: int) -> int:
+    def kernel(matrix: np.matrix, x: int, y: int) -> int:
         if 0 > x > len(matrix[0]):
             massage = f"KernelError: x value cannot be `{x}`. it must be between 0 and matrix size. \nin this case `{len(matrix[0])}`)"
             raise Exception(massage)
@@ -93,7 +94,7 @@ class ImageToLines:
                 if not matrix[y, x]:
                     continue
 
-                if ImageToLines.Kernel(matrix, x, y) <= 7:
+                if ImageToLines.kernel(matrix, x, y) <= 7:
                     out_matrix[y, x] = 1
         return out_matrix
 

@@ -64,7 +64,7 @@ class FileManager:
         self._chosen_path: str = ""
 
         self._selected_path: str = ""
-        self._selected_file: File = None
+        self._selected_file: File = None # noqa
 
         self.allow_select_files: bool = allow_select_files
 
@@ -75,17 +75,17 @@ class FileManager:
                                   alpha=150, position_offset=position_offset, static=False)
 
         surface = pg.image.load("UI_Images/Open.png")
-        position = np.array([pg.display.get_surface().get_width() - 30, 30])
+        position: np.array = np.array([pg.display.get_surface().get_width() - 30, 30])
 
         self.open_button: Button = Button(surface, position, self.layer,
                                   alpha=150, position_offset=position_offset, static=False)
 
     def update_files(self):
-        all_relevent_files = os.listdir(self.current_path)
+        all_relevant_files = os.listdir(self.current_path)
         self.files = []
         self._selected_file = None
         File.Id = 0
-        for file in all_relevent_files:
+        for file in all_relevant_files:
             if file[0] != "." and (os.path.isdir(self.current_path + "/" + file) or file[-4:] == ".png"):
                 file_path = self.current_path + "/" + file
                 self.files.append(File(file_path, self.layer, self.offset_position))
@@ -114,18 +114,24 @@ class FileManager:
                     self.update_files()
                 break
             elif file.is_clicked and os.path.exists(file.path):
-                if not self.allow_select_files and os.path.isdir(file.path):
+                if os.path.isdir(file.path) and not self.allow_select_files:
                     continue
                 if self._selected_file is not None:
-                    self._selected_file.highligh_bg(False)
+                    self._selected_file.highlight_bg(False)
                 self._selected_path = file.path
                 self._selected_file = file
-                self._selected_file.highligh_bg(True)
+                self._selected_file.highlight_bg(True)
 
     def read_selected_path(self):
         if self._chosen_path == "":
             return None
         return self._chosen_path
+
+    def change_layer(self, layer: int):
+        self.layer = layer
+        self.update_files()
+        self.open_button.layer = layer
+        self.back_button.layer = layer
 
 
 

@@ -1,25 +1,26 @@
-import numpy as np
 from matplotlib.pyplot import *
 
 
 class Data:
-    HeadWidth = 1
-    HeadMovingSpeed = 1  # cm/s
-    PointsRes = .3  # cm
+    KernelSize = 1
+    HeadMovingSpeed = 2  # cm/s
+    PointsRes = .25  # cm
     DrawingSize = np.array([25, 30])  # cm
     AllDrawingSizes = [(25, 30)]
+    SteppesPerCm = 50
+    HeadSpeedRatio = 20
 
     @staticmethod
     def set_up(size: np.array):
-        Data.HeadWidth = max(np.int_(size / (Data.DrawingSize / Data.PointsRes))) + 1
-        if Data.HeadWidth <= 0:
-            Data.HeadWidth = 1
+        Data.KernelSize = max(np.int_(size / (Data.DrawingSize / Data.PointsRes))) + 1
+        if Data.KernelSize <= 0:
+            Data.KernelSize = 1
 
 
-class KcodeManager:
+class KcodeManager: # noqa
     def __init__(self, label: str, commands_protocols: list):
         self.label = label
-        self.commands_protocols = commands_protocols
+        self.commands_protocols: list = commands_protocols
         self.times_head_up = 0
         self.removed_points = 0
         self.overall_commands = 0
@@ -45,11 +46,31 @@ class KcodeManager:
 
     def write_file(self, file_name):
         if len(self.k_code) > 2:
-            self.k_code.tofile(file_name + ".kcode")
+            self.k_code.tofile(file_name + ".kcode") # noqa
         else:
-            self.to_k_code().tofile(file_name + ".kcode")
+            self.to_k_code().tofile(file_name + ".kcode") # noqa
 
-    def Kshow(self, color="b", size="."):
+    def write(self):
+        commands_protocols = self.commands_protocols
+        lengths = f"const unsigned int LEN = {len(commands_protocols)};\n\n"
+        all_xs = "short X[LEN] = {"
+        all_ys = "short Y[LEN] = {"
+        all_ts = "unsigned int T[LEN] = {"
+
+        for command_protocal in commands_protocols:
+            cp_k_code = command_protocal.to_k_code()
+            all_xs += str(cp_k_code[0]) + ", "
+            all_ys += str(cp_k_code[1]) + ", "
+            all_ts += str(cp_k_code[3]) + ", "
+
+        all_xs = all_xs[:-2] + "};\n"
+        all_ys = all_ys[:-2] + "};\n"
+        all_ts = all_ts[:-2] + "};\n"
+        file = open("CppCore/data.h", 'w')
+        file.write(lengths + all_xs + all_ys + all_ts)
+        file.close()
+
+    def k_show(self, color="b", size="."):
         figure()
         for line in self.commands_protocols:
             if line.should_print:
@@ -66,14 +87,15 @@ class CommandProtocol:
         self.end_position = end_position
         self.should_print = should_print
         self.length = np.linalg.norm(self.end_position - self.start_position) * Data.PointsRes
-        self.time = self.length / Data.HeadMovingSpeed
+        self.time = self.length / Data.HeadMovingSpeed * 1000 # else it would be in seconds
 
     def to_k_code(self):
         self.length = np.linalg.norm(self.end_position - self.start_position) * Data.PointsRes
-        self.time = self.length / Data.HeadMovingSpeed
+        self.time = self.length / Data.HeadMovingSpeed * 1000 # else it would be in seconds
 
-        return np.array([self.end_position[1] * Data.PointsRes, self.end_position[0] * Data.PointsRes,
-                         self.should_print.as_integer_ratio()[0], self.time], dtype=np.float32)
+        return np.array([self.end_position[1] * Data.PointsRes * Data.SteppesPerCm,
+                         self.end_position[0] * Data.PointsRes * Data.SteppesPerCm,
+                         self.should_print.as_integer_ratio()[0] * Data.HeadSpeedRatio, self.time], dtype=np.int)
 
     def str(self):
         return f"{self.end_position[1]} {self.end_position[0]} {self.should_print.as_integer_ratio()[0]}"

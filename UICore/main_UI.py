@@ -21,19 +21,19 @@ class MainUI:
         self.clock = pg.time.Clock()
         self.mouse = Mouse()
 
-        pg.display.set_caption("Pusha Slicer")
+        pg.display.set_caption("Pusha Slicer") # noqa
 
-        self.im2lines: ImageToLines = None
-        self.raster_simulation: KcodeVisualReader = None
-        self.circles_simulation: KcodeVisualReader = None
-        self.CP: KcodeManager = None
+        self.im2lines: ImageToLines = None # noqa
+        self.raster_simulation: KcodeVisualReader = None # noqa
+        self.circles_simulation: KcodeVisualReader = None # noqa
+        self.CP: KcodeManager = None # noqa
 
-        self.file_manager = FileManager(".", 0)
+        self.file_manager: FileManager = FileManager(".", 0)
         self.import_mode = True
         self.file_manager_enable = True
 
         self.export_raster_button = TextButton(np.array([20, 10]), 1, "Export Raster K-code", (100, 150, 200), 30,
-                                               alpha=100, center_position=False, static=True)
+                                               alpha=100, center_position=False, static=False)
 
         self.export_circles_button = TextButton(np.array([self.screen.get_width() - 20, 10]), 1,
                                                 "Select Circles K-code", (100, 150, 200), 30,
@@ -61,15 +61,15 @@ class MainUI:
             if self.file_manager.read_selected_path() is not None:
                 if self.import_mode is True:
                     self.im2lines = ImageToLines(self.file_manager.read_selected_path())
-                    self.im2lines.get_k_code(raster_mode=True)
-                    self.raster_simulation = KcodeVisualReader(self.im2lines.Kcode_manager)
-                    self.im2lines.get_k_code(raster_mode=False)
-                    self.circles_simulation = KcodeVisualReader(self.im2lines.Kcode_manager)
-                    self.file_manager_enable = False
+
+                    self.raster_simulation = KcodeVisualReader(self.im2lines.get_k_code(raster_mode=True))
+                    self.circles_simulation = KcodeVisualReader(self.im2lines.get_k_code(raster_mode=False))
+
+                    # self.file_manager_enable = False
                     self.import_mode = False
 
-                elif self.CP is not None:
-                    # self.CP.write_file(f'{self.file_manager.}/{self.im2lines.name}_{self.CP.label}')
+                elif self.CP is not None and self.file_manager.read_selected_path() is not None:
+                    self.CP.write_file(f'{self.file_manager.read_selected_path()}/{self.im2lines.name}_{self.CP.label}')
                     Canvas.PaintedLayer += 1
 
         # handle display simulation
@@ -91,7 +91,10 @@ class MainUI:
 
         if self.export_raster_button.is_clicked or self.export_circles_button.is_clicked:
             self.raster_simulation.change_level(3)
+            self.raster_simulation.CP.write()
             self.circles_simulation.change_level(3)
+            self.export_raster_button.is_clicked = False
+            self.export_circles_button.is_clicked = False
 
             if self.export_circles_button.is_clicked:
                 self.CP = self.circles_simulation.CP

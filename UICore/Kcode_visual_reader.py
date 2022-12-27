@@ -6,10 +6,10 @@ from PythonCore.data import Data, KcodeManager
 from UICore.UI_helper import Canvas, Button, Text
 
 
-class KcodeVisualReader(Canvas):
+class KcodeVisualReader(Canvas): # noqa
     Counter = 0
 
-    def __init__(self, cp: KcodeManager, speed: int = 25, factor: int = 20, position_offset: np.array = np.array([0, 0])):
+    def __init__(self, cp: KcodeManager, speed: int = 1, factor: int = 20, position_offset: np.array = np.array([0, 0])):
         self.factor = factor * Data.PointsRes
 
         # setting up the canvas that the simulation is painted on
@@ -56,7 +56,7 @@ class KcodeVisualReader(Canvas):
 
         # check if there are steps to step and enough time passed
         if self._cp_pointer < len(self.CP.commands_protocols) and\
-                (time.time() - self.dt) * self.Speed >= self.CP.commands_protocols[self._cp_pointer].time:
+                (time.time() - self.dt) * self.Speed >= self.CP.commands_protocols[self._cp_pointer].time / 1000:
             command_protocol = self.CP.commands_protocols[self._cp_pointer]
 
             start_pos = np.dot(np.array([[0, 1], [1, 0]]), command_protocol.start_position * self.factor) + 10

@@ -1,5 +1,3 @@
-import time
-import numpy as np
 import pygame as pg
 from matplotlib.pyplot import *
 
@@ -174,27 +172,25 @@ class Button(Canvas):  # a class that handle buttons
             self.is_clicked = False
             self.is_double_clicked = False
 
-        print(self.is_mouse_on)
-
-    def highligh_bg(self, mode: bool):
+    def highlight_bg(self, mode: bool):
         self.bg_highlighted = mode
 
 
 class Text(Canvas):  # a class that handle text
-    def __init__(self, position: np.array, layer: int, text, text_color, text_size: int,
+    def __init__(self, position: np.array, layer: int, _text: str, text_color, text_size: int,
                  position_offset=np.array([0, 0]), font_type: str = 'Comic Sans MS', center_position: bool = True):
 
-        surface = pg.font.SysFont(font_type, text_size).render(text, False, text_color).convert()
+        surface = pg.font.SysFont(font_type, text_size).render(_text, False, text_color).convert()
 
         # calls the Canvas's __init__
         super(Text, self).__init__(surface, position, layer,
                                    position_offset=position_offset, center_position=center_position)
 
     # edit the text
-    def set_text(self, text: str, text_color, text_size: int,
+    def set_text(self, _text: str, text_color, text_size: int,
                  font_type: str = 'Comic Sans MS', center_position: bool = True):
 
-        self.__init__(self.position, self.layer, text, text_color, text_size,
+        self.__init__(self.position, self.layer, _text, text_color, text_size,
                       position_offset=self.position_offset, font_type=font_type, center_position=center_position)
 
     # draws the Text
@@ -205,13 +201,13 @@ class Text(Canvas):  # a class that handle text
 
 
 class TextButton(Button):
-    def __init__(self, position: np.array, layer: int, text, text_color, text_size: int,
+    def __init__(self, position: np.array, layer: int, _text: str, text_color, text_size: int,
                  bg_surface: pg.Surface = None, bbg_surface: pg.Surface = None, selected_surface: pg.Surface = None,
                  alpha: int = 255, alpha2: int = 70, position_offset=np.array([0, 0]),
                  font_type: str = 'Comic Sans MS', center_position: bool = True, static: bool = False):
 
         # creates the the text surface
-        surface = pg.font.SysFont(font_type, text_size).render(text, False, text_color)
+        surface = pg.font.SysFont(font_type, text_size).render(_text, False, text_color)
 
         # handle when the bg_surface or bg_surface is None
         if bg_surface is None:
@@ -231,10 +227,10 @@ class TextButton(Button):
                                          position_offset=position_offset, static=static, center_position=center_position)
 
     # edit the text
-    def set_text(self, text: str, text_color, text_size: int,
+    def set_text(self, _text: str, text_color, text_size: int,
                  font_type: str = 'Comic Sans MS', center_position: bool = True):
 
-        self.__init__(self.position, self.layer, text, text_color, text_size,
+        self.__init__(self.position, self.layer, _text, text_color, text_size,
                       position_offset=self.position_offset, font_type=font_type, center_position=center_position)
 
     # draws the TextButton
