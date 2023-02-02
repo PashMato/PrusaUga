@@ -1,101 +1,11 @@
 import pygame as pg
-from matplotlib.pyplot import *
+import numpy as np
 
+from UICore.canvas import Canvas
+from UICore.mouse import Mouse
 
-def draw(sur: pg.Surface):
-    im = np.zeros(list(sur.get_size()) + [4])
-    for y in range(sur.get_height()):
-        for x in range(sur.get_width()):
-            im[y][x] = np.array(sur.get_at((x, y)))
-    figure()
-    imshow(im)
-
-
-class Mouse:
-    _check5buttons = 3
-    DOWN = np.array([0] * 3)
-    UP = np.array([0] * 3)
-    STILL_DOWN = np.array([0] * 3)
-
-    DOUBLE_CLICK = np.array([0] * 3)
-    SumTime = np.array([0] * 3)
-    last_fame_time = time.time()
-
-    last_STILL_DOWN = np.array([0] * 3)
-
-    @staticmethod
-    def __init__(check5buttons: bool = False):
-        Mouse._check5buttons = check5buttons
-        Mouse.DOWN = np.array([0] * (int(Mouse._check5buttons) * 2 + 3))
-        Mouse.UP = np.array([0] * (int(Mouse._check5buttons) * 2 + 3))
-        Mouse.STILL_DOWN = np.array([0] * (int(Mouse._check5buttons) * 2 + 3))
-
-        Mouse.DOUBLE_CLICK = np.array([0] * (int(Mouse._check5buttons) * 2 + 3))
-        Mouse.SumTime = np.array([0] * (int(Mouse._check5buttons) * 2 + 3))
-        Mouse.last_fame_time = time.time()
-
-        Mouse.last_STILL_DOWN = np.array([0] * (int(Mouse._check5buttons) * 2 + 3))
-
-    @staticmethod
-    def update():
-        Mouse.STILL_DOWN = np.array(pg.mouse.get_pressed(int(Mouse._check5buttons) * 2 + 3), int)
-
-        time_ = time.time()
-
-        Mouse.SumTime = (Mouse.SumTime + time_ - Mouse.last_fame_time) * np.abs(Mouse.DOWN - 1)
-
-        if len(Mouse.STILL_DOWN) == len(Mouse.last_STILL_DOWN):
-            buttons_delta = Mouse.STILL_DOWN - Mouse.last_STILL_DOWN
-            Mouse.DOWN = np.int_(buttons_delta == 1)
-            Mouse.UP = np.int_(buttons_delta == -1)
-
-        Mouse.DOUBLE_CLICK = np.int_((Mouse.SumTime < .5) * (Mouse.SumTime != 0) * Mouse.DOWN)
-
-        Mouse.last_STILL_DOWN = Mouse.STILL_DOWN.copy()
-        Mouse.last_fame_time = time_
-
-
-class Canvas:  # makes an object visible on the screen
-    Offset = np.array([0, 0])
-    PaintedLayer = 0
-
-    def __init__(self, surface: pg.Surface, position: np.array, layer: int,
-                 position_offset: np.array = np.array([0, 0]), center_position: bool = True):
-
-        self.surface = surface
-
-        # makes sure the position is relative to the center of the surface
-        if center_position:
-            position -= np.array(surface.get_size()) // 2
-
-        self.position = position
-        self.position_offset = position_offset
-        self.layer = layer
-
-    def draw(self, surface: pg.Surface = None):
-        # draws the object
-        # child class override this method
-        if self.layer != Canvas.PaintedLayer:
-            return
-        show_canvas(self, surface=surface)
-
-    # change the Canvas's layer
-    def change_level(self, layer: int):
-        self.layer = layer
-
-
-def show_canvas(canvas: Canvas, surface: pg.Surface = None):
-    # the actual method that draws a Canvas object on the screen
-    if canvas.layer != Canvas.PaintedLayer:
-        return
-    offset = np.zeros(2)
-    if surface is None:
-        surface = pg.display.get_surface()
-        offset = Canvas.Offset
-    surface.blit(canvas.surface, canvas.position + offset)
-
-
-class Button(Canvas):  # a class that handle buttons
+# a class that handle buttons
+class Button(Canvas):
     def __init__(self, surface: pg.Surface, position: np.array, layer: int, alpha: int = 255, alpha2: int = 70,
                  back_surface: pg.Surface = None, selected_surface: pg.Surface = None, color2: list = (50, 100, 200),
                  position_offset: np.array = np.array([0, 0]), center_position: bool = True, static: bool = False):
@@ -176,30 +86,8 @@ class Button(Canvas):  # a class that handle buttons
         self.bg_highlighted = mode
 
 
-class Text(Canvas):  # a class that handle text
-    def __init__(self, position: np.array, layer: int, _text: str, text_color, text_size: int,
-                 position_offset=np.array([0, 0]), font_type: str = 'Comic Sans MS', center_position: bool = True):
 
-        surface = pg.font.SysFont(font_type, text_size).render(_text, False, text_color).convert()
-
-        # calls the Canvas's __init__
-        super(Text, self).__init__(surface, position, layer,
-                                   position_offset=position_offset, center_position=center_position)
-
-    # edit the text
-    def set_text(self, _text: str, text_color, text_size: int,
-                 font_type: str = 'Comic Sans MS', center_position: bool = True):
-
-        self.__init__(self.position, self.layer, _text, text_color, text_size,
-                      position_offset=self.position_offset, font_type=font_type, center_position=center_position)
-
-    # draws the Text
-    def draw(self, surface: pg.Surface = None):
-        if self.layer != Canvas.PaintedLayer:
-            return
-        super(Text, self).draw(surface=surface)
-
-
+# a class that handle buttons with text
 class TextButton(Button):
     def __init__(self, position: np.array, layer: int, _text: str, text_color, text_size: int,
                  bg_surface: pg.Surface = None, bbg_surface: pg.Surface = None, selected_surface: pg.Surface = None,
@@ -238,4 +126,3 @@ class TextButton(Button):
         if self.layer != Canvas.PaintedLayer:
             return
         super(TextButton, self).draw(surface=surface)
-

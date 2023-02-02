@@ -1,11 +1,15 @@
 import numpy as np
 import pygame as pg
-from UICore.UI_helper import Canvas, TextButton, Mouse
+
+from UICore.canvas import Canvas
+from UICore.mouse import Mouse
+from UICore.buttons import TextButton
+
 from UICore.file_viewer import FileManager
 from UICore.Kcode_visual_reader import KcodeVisualReader
 
 from PythonCore.image_to_lines import ImageToLines
-from PythonCore.data import KcodeManager
+from PythonCore.k_command_manger import KCommandManager
 
 
 class MainUI:
@@ -23,10 +27,11 @@ class MainUI:
 
         pg.display.set_caption("Pusha Slicer") # noqa
 
-        self.im2lines: ImageToLines = None # noqa
+        self.im2lines: Base = None # noqa
         self.raster_simulation: KcodeVisualReader = None # noqa
         self.circles_simulation: KcodeVisualReader = None # noqa
-        self.CP: KcodeManager = None # noqa
+        self.CP: KCommandManager = None # noqa
+        self.did_write = False
 
         self.file_manager: FileManager = FileManager(".", 0)
         self.import_mode = True
@@ -68,8 +73,9 @@ class MainUI:
                     # self.file_manager_enable = False
                     self.import_mode = False
 
-                elif self.CP is not None and self.file_manager.read_selected_path() is not None:
-                    self.CP.write_file(f'{self.file_manager.read_selected_path()}/{self.im2lines.name}_{self.CP.label}')
+                elif self.CP is not None and self.file_manager.read_selected_path() is not None and not self.did_write:
+                    self.CP.write_file(f'{self.file_manager.read_selected_path()}/{self.im2lines.name.split(".")[0]}_{self.CP.label.lower()}')
+                    self.did_write = True
                     Canvas.PaintedLayer += 1
 
         # handle display simulation
@@ -91,15 +97,13 @@ class MainUI:
 
         if self.export_raster_button.is_clicked or self.export_circles_button.is_clicked:
             self.raster_simulation.change_level(3)
-            self.raster_simulation.CP.write()
             self.circles_simulation.change_level(3)
-            self.export_raster_button.is_clicked = False
-            self.export_circles_button.is_clicked = False
-
             if self.export_circles_button.is_clicked:
                 self.CP = self.circles_simulation.CP
+                self.export_circles_button.is_clicked = False
             else:
                 self.CP = self.raster_simulation.CP
+                self.export_raster_button.is_clicked = False
 
             self.file_manager = FileManager(self.file_manager.current_path, 2,
                                             position_offset=self.file_manager.offset_position, allow_select_files=True)

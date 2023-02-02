@@ -2,7 +2,8 @@ import numpy as np
 import pygame as pg
 import os
 
-from UICore.UI_helper import TextButton, Button, Canvas
+from UICore.canvas import Canvas
+from UICore.buttons import TextButton, Button
 
 
 class File(TextButton):

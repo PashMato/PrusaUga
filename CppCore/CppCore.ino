@@ -1,24 +1,22 @@
+// https://lastminuteengineers.com/esp32-pinout-reference/
+
+#include "defs.h"
 #include "ManagedStepper.h"
 #include "data.h"
 
- #define XPIN A6
- #define YPIN A7
 
+ManagedStepper stepperX(X, LEN, T, LEN, X_DIR, X_STEP, X_BEG, X_END, "X");
+ManagedStepper stepperY(Y, LEN, T, LEN, Y_DIR, Y_STEP, Y_BEG, Y_END, "Y");
 
+const float r = 200;
+const float rate = 0.05 * 2 * PI;
 
-
-
- ManagedStepper stepperX(X, LEN, T, LEN, 2, 5, 9, 9);
- ManagedStepper stepperY(Y, LEN, T, LEN, 3, 6, 9, 9);
-
- const float r = 200;
- const float rate = 0.05 * 2 * PI;
-
- void setup() { 
+void setup() { 
    Serial.begin(115200);
    Serial.println("Starting");
    ManagedStepper::enable(false);
    delay(100);
+   pinMode(LED_PIN, OUTPUT);
    ManagedStepper::enable(true);
    delay(3000);
    ManagedStepper::Update();
@@ -46,10 +44,14 @@ void loop() {
   //    stepperY.goTo(y, now + DT);
   //    lastUpdate = now;
   // }
-
+  
   ManagedStepper::Update();
   stepperX.update();
   stepperY.update();
+  
+  unsigned long now = millis();
+  digitalWrite(LED_PIN, (now % 1000) > 500 ? HIGH : LOW);
+  // Serial.println((now % 1000) > 500 ? HIGH : LOW);
  
   delay(1);
 }

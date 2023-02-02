@@ -1,4 +1,5 @@
-#define ENABLE_PIN 8
+#include "defs.h"
+
 #define NULL 0
 #define True 1
 #define False -1
@@ -11,6 +12,7 @@ class ManagedStepper
   
   private:
     
+    const char *_name;
     
     unsigned int* _pTimeArray;
     unsigned int _timeArrayLen;
@@ -47,7 +49,8 @@ class ManagedStepper
 
     int maxPos = 1;
 
-    void setup(int dirP, int stepP, int microSwitchPin0, int microSwitchPin1) {
+    void setup(int dirP, int stepP, int microSwitchPin0, int microSwitchPin1, const char *name) {
+        _name = name;
         _microSwitchPin0 = microSwitchPin0;
         _microSwitchPin1 = microSwitchPin1;
         _dirPin = dirP;
@@ -63,19 +66,17 @@ class ManagedStepper
     }
 
   public:
-    ManagedStepper(int dirP, int stepP, int microSwitchPin0, int microSwitchPin1) {
-      setup(dirP, stepP, microSwitchPin0, microSwitchPin1);
+    ManagedStepper(int dirP, int stepP, int microSwitchPin0, int microSwitchPin1, const char *name=NULL) {
+      setup(dirP, stepP, microSwitchPin0, microSwitchPin1, name);
     }
 
     ManagedStepper(short* pPosArray, unsigned int posArrayLen, unsigned int* pTimeArray, unsigned int timeArrayLen,
-                                                      int dirP, int stepP, int microSwitchPin0, int microSwitchPin1) {
-      setup(dirP, stepP, microSwitchPin0, microSwitchPin1);
+                            int dirP, int stepP, int microSwitchPin0, int microSwitchPin1, const char *name=NULL) {
+      setup(dirP, stepP, microSwitchPin0, microSwitchPin1, name);
       
       if (timeArrayLen != posArrayLen) {
         sprintf(msg, "timeArray length (%i) doesn't match posArray length (%i)", timeArrayLen, posArrayLen);
         Serial.println(msg);
-//        Serial.println("timeArray length doesn't match posArray length");
-//        Serial.println(String("timeArray length (") + timeArrayLen String(") doesn't match posArray length (") + posArrayLen + String(")"));
         return;
       }
       _pPosArray = pPosArray;
@@ -113,13 +114,22 @@ class ManagedStepper
     // }
     
     void start() {
-      Serial.println("Statring Stepper");
+      Serial.print("Statring Stepper ");
+      Serial.println(_name);
       shouldRun = true;
       _commandPointer = 0;
+    }
+    
+    void continueWorking() {
+      Serial.print("Stepper Continue Working");
+      Serial.println(_name);
+      shouldRun = true;
     }
 
     void stop() {
       shouldRun = false;
+      Serial.print("Stopping Stepper ");
+      Serial.println(_name);
     }
 
     bool isRunning() {
@@ -181,7 +191,7 @@ class ManagedStepper
         }
       }
 
-      if (shouldRun && _commandPointer <= _timeArrayLen && _commandPointer <= _posArrayLen)
+      if (shouldRun && _commandPointer < _timeArrayLen)
       {
         if (isDone()) {
           goTo(_pPosArray[_commandPointer], _pTimeArray[_commandPointer]);
@@ -189,9 +199,10 @@ class ManagedStepper
           Serial.println(msg);
           _commandPointer++;
           
-          if (_commandPointer > _timeArrayLen && _commandPointer > _posArrayLen)
+          if (_commandPointer >= _timeArrayLen && _commandPointer >= _posArrayLen)
           {
             stop();
+            Serial.println("Done");
             _commandPointer = 0;
           }
         }

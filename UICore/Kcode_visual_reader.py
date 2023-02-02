@@ -2,18 +2,21 @@ import numpy as np
 import pygame as pg
 import time
 import os
-from PythonCore.data import Data, KcodeManager
-from UICore.UI_helper import Canvas, Button, Text
+from PythonCore.data import Data
+from PythonCore.k_command_manger import KCommandManager
+from UICore.canvas import Canvas
+from UICore.buttons import Button
+from UICore.text import Text
 
 
 class KcodeVisualReader(Canvas): # noqa
     Counter = 0
 
-    def __init__(self, cp: KcodeManager, speed: int = 1, factor: int = 20, position_offset: np.array = np.array([0, 0])):
+    def __init__(self, cp: KCommandManager, speed: int = 10, factor: int = 20, position_offset: np.array = np.array([0, 0])):
         self.factor = factor * Data.PointsRes
 
         # setting up the canvas that the simulation is painted on
-        self.canvas = pg.Surface(np.array([[0, 1], [1, 0]]).dot(Data.DrawingSize // Data.PointsRes * self.factor) + 20)
+        self.canvas = pg.Surface(np.array([[0, 1], [1, 0]]).dot(Data.DrawingSize * self.factor // Data.PointsRes) + 20)
         self.canvas.fill((10, 10, 10))
 
         # the main surface position
@@ -29,7 +32,6 @@ class KcodeVisualReader(Canvas): # noqa
         self.dt = time.time()
 
         self.CP = cp
-        self.CP.to_k_code()
 
         # set up the replay button
         back_surface = pg.transform.scale(pg.image.load(os.path.abspath("UI_Images/Replay.png")), (60, 60))
