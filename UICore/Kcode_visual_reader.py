@@ -13,10 +13,11 @@ class KcodeVisualReader(Canvas): # noqa
     Counter = 0
 
     def __init__(self, cp: KCommandManager, speed: int = 10, factor: int = 20, position_offset: np.array = np.array([0, 0])):
-        self.factor = factor * Data.PointsRes
+        self.factor = factor * Data.LineThickness
+        self.CP = cp
 
         # setting up the canvas that the simulation is painted on
-        self.canvas = pg.Surface(np.array([[0, 1], [1, 0]]).dot(Data.DrawingSize * self.factor // Data.PointsRes) + 20)
+        self.canvas = pg.Surface(np.array([[0, 1], [1, 0]]).dot(Data.DrawingSize * self.factor // Data.LineThickness) + 20)
         self.canvas.fill((10, 10, 10))
 
         # the main surface position
@@ -31,7 +32,7 @@ class KcodeVisualReader(Canvas): # noqa
         self._cp_pointer = 0
         self.dt = time.time()
 
-        self.CP = cp
+        self.start_pos: np.ndarray = self.CP.commands[0].start_position
 
         # set up the replay button
         back_surface = pg.transform.scale(pg.image.load(os.path.abspath("UI_Images/Replay.png")), (60, 60))
@@ -46,7 +47,7 @@ class KcodeVisualReader(Canvas): # noqa
                           (10, 100, 100), 30, position_offset=self.position + self.position_offset)
 
         # data
-        text = f"Removed Points: {self.CP.removed_points}   Overall Commands: {self.CP.overall_commands}"\
+        text = f"Removed Commands: {self.CP.removed_commands}   Overall Commands: {self.CP.overall_commands}"\
                + f"  Times Head Up: {self.CP.times_head_up}"
         self.data_table = Text(np.array([self.surface.get_width() // 2, self.surface.get_height() - 20]), self.layer,
                                text, (100, 150, 150), 25, position_offset=self.position + self.position_offset)
@@ -57,21 +58,22 @@ class KcodeVisualReader(Canvas): # noqa
             return
 
         # check if there are steps to step and enough time passed
-        if self._cp_pointer < len(self.CP.commands_protocols) and\
-                (time.time() - self.dt) * self.Speed >= self.CP.commands_protocols[self._cp_pointer].time / 1000:
-            command_protocol = self.CP.commands_protocols[self._cp_pointer]
+        if self._cp_pointer < len(self.CP.commands) and\
+                (time.time() - self.dt) * self.Speed >= self.CP.commands[self._cp_pointer].time / 1000:
+            command_protocol = self.CP.commands[self._cp_pointer]
 
-            start_pos = np.dot(np.array([[0, 1], [1, 0]]), command_protocol.start_position * self.factor) + 10
             end_pos = np.dot(np.array([[0, 1], [1, 0]]), command_protocol.end_position * self.factor) + 10
 
-            if command_protocol.should_print:
+            if command_protocol.is_printing:
                 # draws the current step
-                pg.draw.circle(self.canvas, (10, 10, 255), start_pos, 3)
+                pg.draw.circle(self.canvas, (10, 10, 255), self.start_pos, 3)
                 pg.draw.circle(self.canvas, (10, 10, 255), end_pos, 3)
-                pg.draw.line(self.canvas, (10, 10, 255), start_pos, end_pos, 2)
+                pg.draw.line(self.canvas, (10, 10, 255), self.start_pos, end_pos, 2)
+                self.start_pos = end_pos
             else:
                 # draws the current step (the head is up)
-                pg.draw.line(self.canvas, (100, 10, 10), start_pos, end_pos, 1)
+                pg.draw.line(self.canvas, (100, 10, 10), self.start_pos, end_pos, 1)
+                self.start_pos = end_pos
 
             self._cp_pointer += 1
             self.dt = time.time()

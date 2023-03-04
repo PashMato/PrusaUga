@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
+import sys
+sys.path.append("/home/pash/PycharmProjects/PrushaUga")
+
 import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
 
+from PythonCore.data import Data
 
 def read_gcode(fn):
-    text = open(fn).readlines()
     acc = []
+
+    with open(fn) as file:
+        text = file.readlines()
+
     curr_x = 0
     curr_y = 0
     curr_z = 0
@@ -19,15 +26,19 @@ def read_gcode(fn):
         # Expecting something like:
         # $J=G90 G21 F2000 X-7.89473 Y30.26315 Z20.0
         header = "$J=G90 G21 F"
+
         assert code.startswith(header), f"{ctr + 1}: Don't know this command: {code}"
+
         fields = code.split(header)[1].split(' ')
+
         x1 = float(fields[1].lower().lstrip('x'))
         y1 = float(fields[2].lower().lstrip('y'))
         z1 = float(fields[3].lower().lstrip('z'))
+
         acc.append({'speed': int(fields[0]),
                     'x0': curr_x, 'y0': curr_y, 'z0': curr_z,
-                    'x1': x1, 'y1': y1, 'z1': z1,
-                    })
+                    'x1': x1, 'y1': y1, 'z1': z1})
+
         curr_x = x1
         curr_y = y1
         curr_z = z1
@@ -40,7 +51,7 @@ def draw_gcode(gcode, fignum=None):
     temp['space'] = np.nan
     temp['dz'] = temp['z1'] - temp['z0']
     dl = np.linalg.norm(temp[['x0', 'y0']].values - temp[['x1', 'y1']].values, axis=1)
-    temp['width'] = np.where(temp['dz'] < 0, -1, np.ceil((temp['dz'] / 20*(dl + 1e-10)).clip(0, 3)))
+    temp['width'] = np.where(temp['dz'] < 0, -1, np.ceil((temp['dz'] / 20 * (dl + 1e-10)).clip(0, 3)))
 
     def plot_group(grp):
         x = grp[['x0', 'x1', 'space']].values.ravel()

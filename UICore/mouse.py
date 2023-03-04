@@ -3,6 +3,7 @@ import time
 
 import pygame as pg
 
+
 class Mouse:
     _check5buttons = 3
     DOWN = np.array([0] * 3)

@@ -8,7 +8,7 @@ from UICore.buttons import TextButton
 from UICore.file_viewer import FileManager
 from UICore.Kcode_visual_reader import KcodeVisualReader
 
-from PythonCore.image_to_lines import ImageToLines
+from PythonCore.image_to_kcommands import ImageToLines
 from PythonCore.k_command_manger import KCommandManager
 
 
@@ -67,14 +67,14 @@ class MainUI:
                 if self.import_mode is True:
                     self.im2lines = ImageToLines(self.file_manager.read_selected_path())
 
-                    self.raster_simulation = KcodeVisualReader(self.im2lines.get_k_code(raster_mode=True))
-                    self.circles_simulation = KcodeVisualReader(self.im2lines.get_k_code(raster_mode=False))
+                    self.raster_simulation = KcodeVisualReader(self.im2lines.get_k_code("raster"))
+                    self.circles_simulation = KcodeVisualReader(self.im2lines.get_k_code())
 
                     # self.file_manager_enable = False
                     self.import_mode = False
 
                 elif self.CP is not None and self.file_manager.read_selected_path() is not None and not self.did_write:
-                    self.CP.write_file(f'{self.file_manager.read_selected_path()}/{self.im2lines.name.split(".")[0]}_{self.CP.label.lower()}')
+                    self.CP.write_file(f'{self.file_manager.read_selected_path()}/{self.CP.label}')
                     self.did_write = True
                     Canvas.PaintedLayer += 1
 
