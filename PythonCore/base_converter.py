@@ -8,8 +8,7 @@ from PythonCore.k_command_manger import KCommandManager
 class BaseConverter:
     def __init__(self, path: str):
         self.path = os.path.expanduser(path)
-        name = path.split("/")[-1].split(".")[0].lower()
-        self.name = name[0].upper() + name[1:]
+        self.name = path.split("/")[-1].split(".")[0].title()
         self.KCode_manager: KCommandManager = KCommandManager(self.name, [], np.array([1, 1]))  # noqa
 
     def get_k_code(self, mode: str = None) -> KCommandManager:

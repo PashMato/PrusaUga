@@ -11,7 +11,7 @@ from datetime import date
 
 class KCommandManager: # noqa
     def __init__(self, label: str, commands_protocols: list[KCommand], size: np.ndarray):
-        self.label = label
+        self.label = label.title().replace(" ", "-")
         self.commands: list[KCommand] = commands_protocols
         self.times_head_up = 0
         self.removed_commands = 0
@@ -38,7 +38,7 @@ G17 (use XY plane)
 G21 (all units in mm)
 G90 (use absolute position)
 
-G1 F{200 * Data.Speed}
+G1 F{200 * Data.PrintingSpeedFactor}
 
 ; code
 """
@@ -128,7 +128,7 @@ G1 F{200 * Data.Speed}
                     _min = command.length
         self.average_length = _sum / len(commands)
 
-    def write_file(self, file_name):
+    def write_file(self, file_name, save_outline=True):
 
         full_path = os.path.expanduser(file_name)
 
@@ -158,30 +158,31 @@ G17 (use XY plane)
 G21 (all units in mm)
 G90 (use absolute position)
 
-G1 F{200 * Data.Speed}
+G1 F{400 * Data.PrintingSpeedFactor}
 
 ; code
 
-G1 X{(0 - Data.ShiftX) * Data.MMPerPoint} Y{(0 - Data.ShiftY) * Data.MMPerPoint}
+G0 X{(0 - Data.ShiftX) * Data.MMPerPoint} Y{(0 - Data.ShiftY) * Data.MMPerPoint}
 G1 X{(self.canvas_size[1] - Data.ShiftX) * Data.MMPerPoint} Y{(0 - Data.ShiftY) * Data.MMPerPoint}
 G1 X{(self.canvas_size[1] - Data.ShiftX) * Data.MMPerPoint} Y{(self.canvas_size[0] - Data.ShiftX) * Data.MMPerPoint}
 G1 X{(0 - Data.ShiftX) * Data.MMPerPoint} Y{(self.canvas_size[0] - Data.ShiftX) * Data.MMPerPoint}
 G1 X{(0 - Data.ShiftX) * Data.MMPerPoint} Y{(0 - Data.ShiftY) * Data.MMPerPoint}
-G1 X0 Y0
+G0 X0 Y0
 """
 
-        print(f"Saving file in: `{path}`, as: `{name}-Test.gcode`")
-        with open(f"{path}/{name}-Test.gcode", "w") as file:
-            file.write(gtest)
-            file.close()
-            print("Done Saving")
+        if save_outline:
+            print(f"Saving file in: `{path}`, as: `{name}-Outline.gcode`")
+            with open(f"{path}/{name}-Outline.gcode", "w") as file:
+                file.write(gtest)
+                file.close()
+                print("Done Saving")
 
-    def k_show(self, color="b", head_up_color="r", size="."):
+    def k_show(self, color="b", head_up_color="r", size=".", linewidth="1.5"):
         plt.figure()
         for line in self.commands:
             if line.is_printing:
                 plt.plot([line.start_position[1], line.end_position[1]], [line.start_position[0], line.end_position[0]],
-                                                            color + size, linestyle="-")
+                                                            color + size, linestyle="-", linewidth=linewidth)
             else:
                 plt.plot([line.start_position[1], line.end_position[1]], [line.start_position[0], line.end_position[0]],
                                                             head_up_color + size, linestyle="-")
@@ -193,3 +194,29 @@ G1 X0 Y0
 
     @staticmethod
     def Empty(size: np.ndarray, name: str = "Empty"): return KCommandManager(name, [], size)  # noqa
+
+
+def generate_tests() -> tuple[KCommandManager, KCommandManager]:
+    pix = Data.LineThickness
+    test_hsr: KCommandManager = KCommandManager(f"Test HSR {Data.HeadSpeedRatio}", [
+        KCommand(np.zeros(2), np.ones(2) * 7 * pix, True),
+        KCommand(np.ones(2) * 7 * pix, np.array([0, 1]) * 7 * pix, True),
+        KCommand(np.array([0, 1]) * 7 * pix, np.array([1, 0]) * 7 * pix, False),
+        KCommand(np.array([1, 0]) * 3.5 * pix, np.zeros(2), False),
+    ], np.ones(2) * 20 * pix)
+
+    test_lt: KCommandManager = KCommandManager(f"Test LT {Data.LineThickness}", [
+        KCommand(np.zeros(2), np.array([1, 0]) * pix, True),
+        KCommand(np.array([1, 0]) * pix, np.array([1, 1]) * pix, True),
+        KCommand(np.array([1, 1]) * pix, np.array([-1, 1]) * pix, True),
+        KCommand(np.array([-1, 1]) * pix, np.array([-1, -1]) * pix, True),
+        KCommand(np.array([-1, -1]) * pix, np.array([2, -1]) * pix, True),
+        KCommand(np.array([2, -1]) * pix, np.array([2, 2]) * pix, True),
+        KCommand(np.array([2, 2]) * pix, np.array([-2, 2]) * pix, True),
+        KCommand(np.array([-2, 2]) * pix, np.array([-2, -2]) * pix, True),
+        KCommand(np.array([-2, -2]) * pix, np.array([3, -2]) * pix, True),
+        KCommand(np.array([3, -2]) * pix, np.array([3, 3]) * pix, True),
+        KCommand(np.array([3, 3]) * pix, np.array([-3, 3]) * pix, True),
+        ], np.ones(2) * 10 * pix)
+
+    return test_hsr, test_lt
