@@ -12,7 +12,7 @@ class MatBasedConverter(BaseConverter):
     def __init__(self, path: str):
         super(MatBasedConverter, self).__init__(path)
 
-        self.image: np.ndarray = plt.imread(self.path)
+        self.image: np.ndarray = plt.imread(self.file_name)
         self.output_matrix: np.ndarray = np.zeros(self.image.shape[:2])
         self.image_to_matrix()
 
@@ -131,7 +131,7 @@ class MatBasedConverter(BaseConverter):
 
         plt.title(self.name)
 
-        self.KCode_manager.k_show()
+        self.KCM.k_show()
 
         plt.show(block=True)
 

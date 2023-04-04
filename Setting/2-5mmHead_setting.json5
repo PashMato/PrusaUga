@@ -1,1 +1,1 @@
-{HeadMovingSpeed: 2, LineThickness: 0.5, DrawingSize: [20, 20], HeadSpeedRatio: 0.125, PenUpFore: 2, PrintingSpeedFactor: 2}
+{LineThickness: 0.25, DrawingSize: [20, 20], HeadSpeedRatio: 0.006, PenUpFore: 0.5, PrintingSpeedFactor: 4}

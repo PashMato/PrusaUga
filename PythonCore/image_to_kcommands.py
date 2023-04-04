@@ -4,8 +4,7 @@ import cv2
 
 from PythonCore.base_matrix_based_conv import MatBasedConverter
 
-from PythonCore.k_command_manger import KCommandManager
-from PythonCore.k_command import KCommand
+from PythonCore.k_command_manager import KCommandManager
 
 
 class ImageToLines(MatBasedConverter):
@@ -26,19 +25,19 @@ class ImageToLines(MatBasedConverter):
                 [0, 1, 0]])
 
             while np.any(matrix):
-                _edge = matrix * ImageToLines.conv_mat(matrix, kernel=weight)
+                _edge = matrix * (ImageToLines.conv_mat(matrix, kernel=weight) < 3)
                 matrix -= _edge
 
                 d_mat += d * _edge
                 d += 1
             return d_mat
 
-        self.KCode_manager = KCommandManager(f"{self.name} Circles", [], np.array(self.output_matrix.shape))
+        self.KCM = KCommandManager(f"{self.name} Circles", [], np.array(self.output_matrix.shape))
         # depth_mat = np.zeros(self.output_matrix.shape)
         depth_mat = depth_matrix()
 
         # for over the layer
-        last_end_pos: np.ndarray = np.array(self.output_matrix.shape) // 2
+        last_end_pos: np.ndarray = np.array(self.output_matrix.T.shape) // 2
 
         i_depth = 0
 
@@ -55,10 +54,10 @@ class ImageToLines(MatBasedConverter):
                         break
                     i_depth = 0
                     continue
-                self.KCode_manager += KCommand(last_end_pos, end_pos, False)
+                self.KCM += np.concatenate([last_end_pos, end_pos[1::-1], np.zeros(1)])
                 last_end_pos = end_pos
             else:
-                last_end_pos = self.KCode_manager.commands[-1].end_position
+                last_end_pos = self.KCM.commands[-1][2:4][1::-1]
 
             components = np.array(cv2.connectedComponents((depth_mat == i_depth).astype(np.int8))[1])  # noqa
             closest_edge_piece = ImageToLines.get_nearest(depth_mat == i_depth, last_end_pos)
@@ -70,13 +69,13 @@ class ImageToLines(MatBasedConverter):
             edge = components == components[closest_edge_piece[0], closest_edge_piece[1]]
             depth_mat *= ~edge
 
-            self.KCode_manager += ImageToLines.close_loop(edge, start_pos=last_end_pos)
+            self.KCM += ImageToLines.close_loop(edge, start_pos=last_end_pos)
             i_depth -= 1
 
         print(f"Done Slicing {self.name}")
-        self.KCode_manager.optimize()
+        self.KCM.optimize()
         print(f"Optimizing {self.name}")
-        return self.KCode_manager
+        return self.KCM
 
     @staticmethod
     def close_loop(matrix, start_pos: np.ndarray = None, end_pos: np.ndarray = None) -> KCommandManager:
@@ -89,7 +88,7 @@ class ImageToLines(MatBasedConverter):
 
         is_reversed = False
 
-        if not np.any(start_pos != end_pos) and not np.any(start_pos != None):  # noqa
+        if np.all(start_pos == end_pos) and np.all(start_pos == None):  # noqa
             # there aren't any requirements for the start or end position
             start_pos = ImageToLines.get_nearest(matrix, np.zeros(2))
         elif start_pos is None and end_pos is not None:
@@ -101,10 +100,10 @@ class ImageToLines(MatBasedConverter):
         KM: KCommandManager = KCommandManager("KCommandManager", [], np.array(matrix.shape))
 
         for cntr in range(np.sum(matrix != 0)):
-            command: KCommand = ImageToLines.simple_slice(matrix, start_pos)
+            command = ImageToLines.simple_slice(matrix, start_pos)
             KM += command
 
-            start_pos = KM.commands[-1].end_position.astype(int)
+            start_pos = KM.commands[-1][2:4][1::-1].astype(int)
 
         if is_reversed:
             KM: KCommandManager = KM.__reversed__()
@@ -118,10 +117,10 @@ class ImageToLines(MatBasedConverter):
 
         if nr_end_pos is not None:
             end_pos = start_pos + nr_end_pos + offset - 1
-            return KCommand(start_pos, end_pos, True)
+            return np.concatenate([start_pos[1::-1], end_pos[1::-1], np.ones(1)])
         elif matrix.any():
             end_pos = ImageToLines.get_nearest(matrix, start_pos)
-            return KCommand(start_pos, end_pos, False)
+            return np.concatenate([start_pos[1::-1], end_pos[1::-1], np.zeros(1)])
         else:
             return None
 

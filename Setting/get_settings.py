@@ -14,7 +14,6 @@ prop_options = {
     "PenUpFore": float,
     "HeadSpeedRatio": float,
     "PrintingSpeedFactor": float,
-    "HeadMovingSpeed": float,
 }
 
 

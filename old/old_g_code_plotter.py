@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-sys.path.append("/home/pash/PycharmProjects/PrushaUga")
+sys.path.append("/")
 
 import os
 import numpy as np
@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import argparse
 
 from PythonCore.data import Data
+
 
 def read_gcode(fn):
     acc = []

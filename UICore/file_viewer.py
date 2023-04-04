@@ -110,16 +110,16 @@ class FileManager:
         for file in self.files:
             file.draw()
             if file.is_double_clicked:
-                if file.path.split("/")[-1][0] != "." and os.path.exists(file.path) and os.path.isdir(file.path):
-                    self.current_path = file.path
+                if file.file_name.split("/")[-1][0] != "." and os.path.exists(file.file_name) and os.path.isdir(file.file_name):
+                    self.current_path = file.file_name
                     self.update_files()
                 break
-            elif file.is_clicked and os.path.exists(file.path):
-                if os.path.isdir(file.path) and not self.allow_select_files:
+            elif file.is_clicked and os.path.exists(file.file_name):
+                if os.path.isdir(file.file_name) and not self.allow_select_files:
                     continue
                 if self._selected_file is not None:
                     self._selected_file.highlight_bg(False)
-                self._selected_path = file.path
+                self._selected_path = file.file_name
                 self._selected_file = file
                 self._selected_file.highlight_bg(True)
 

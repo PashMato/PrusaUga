@@ -1,4 +1,4 @@
-from matplotlib.pyplot import *
+import numpy as np
 
 
 class Data:
@@ -8,7 +8,6 @@ class Data:
     PenUpFore = 2  # the given fore after a penup
     HeadSpeedRatio = 1/8  # head mm per length mm
     PrintingSpeedFactor = 2  # the printing speed factor
-    HeadMovingSpeed = 2  # cm/s
     MMPerPoint = 1  # mm
 
     ShiftX = 0
@@ -16,7 +15,7 @@ class Data:
 
     @staticmethod
     def set_up(size: np.array):
-        Data.KernelSize = max(np.int_(size / (Data.DrawingSize / Data.LineThickness))) + 1
+        Data.KernelSize = np.max(np.int_(size / (Data.DrawingSize / Data.LineThickness))) + 1
         if Data.KernelSize <= 0:
             Data.KernelSize = 1
 
@@ -26,10 +25,9 @@ class Data:
         Data.ShiftY, Data.ShiftX = size // 2
 
     @staticmethod
-    def set_setting(Vals: dict):
-        Data.DrawingSize = np.array(Vals["DrawingSize"])  # cm
-        Data.LineThickness = Vals["LineThickness"]  # cm
-        Data.PenUpFore = Vals["PenUpFore"]  # the given fore after a penup
-        Data.HeadSpeedRatio = Vals["HeadSpeedRatio"]  # head mm per length mm
-        Data.PrintingSpeedFactor = Vals["PrintingSpeedFactor"]  # the printing speed factor
-        Data.HeadMovingSpeed = Vals["HeadMovingSpeed"]  # cm/s
+    def set_setting(vals: dict):
+        Data.DrawingSize = np.array(vals["DrawingSize"])  # cm
+        Data.LineThickness = vals["LineThickness"]  # cm
+        Data.PenUpFore = vals["PenUpFore"]  # the given fore after a penup
+        Data.HeadSpeedRatio = vals["HeadSpeedRatio"]  # head mm per length mm
+        Data.PrintingSpeedFactor = vals["PrintingSpeedFactor"]  # the printing speed factor

@@ -3,7 +3,7 @@ from copy import copy
 
 import numpy as np
 
-from PythonCore.k_command import KCommand
+from old.old_k_command import KCommand
 from PythonCore.data import Data
 from matplotlib import pyplot as plt
 
@@ -191,6 +191,7 @@ G0 X0 Y0
                          f"Overall commands: {self.overall_commands}"]], cellLoc="left", loc="top", edges="open")
         plt.gca().invert_yaxis()
         plt.xlabel(self.label)
+        plt.axis("equal")
 
     @staticmethod
     def Empty(size: np.ndarray, name: str = "Empty"): return KCommandManager(name, [], size)  # noqa

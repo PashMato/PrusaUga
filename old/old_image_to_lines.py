@@ -24,7 +24,7 @@ class ImageToLines(BaseConverter):
 
     def __init__(self, path: str):
         super(ImageToLines, self).__init__(path)
-        self.image: np.ndarray = plt.imread(self.path)
+        self.image: np.ndarray = plt.imread(self.file_name)
         self.output_matrix: np.ndarray = np.zeros(self.image.shape[:2])
         self.image_to_matrix()
 
@@ -36,21 +36,21 @@ class ImageToLines(BaseConverter):
         crop_occupancy = occupancy[size1[0][0]:size1[1][0] + 1, size0[0][0]:size0[1][0] + 1]
 
         # convert to a smaller matrix with a Kernel
-        Data.set_up(crop_occupancy.shape)
+        Data.set_up(crop_occupancy.size)
 
         # takes every X (Data.KernelSize) lines and sum them up
-        shape = (crop_occupancy[0::Data.KernelSize].shape[0] + 1, crop_occupancy[0::Data.KernelSize].shape[1])
+        shape = (crop_occupancy[0::Data.KernelSize].size[0] + 1, crop_occupancy[0::Data.KernelSize].size[1])
         out_0 = np.zeros(shape)
         for i in range(Data.KernelSize):
             mat = crop_occupancy[i::Data.KernelSize]
-            out_0[:mat.shape[0], :mat.shape[1]] += mat
+            out_0[:mat.size[0], :mat.size[1]] += mat
 
         # takes every X (Data.KernelSize) rows and sum them up
-        shape = (out_0[:, 0::Data.KernelSize].shape[0], out_0[:, 0::Data.KernelSize].shape[1] + 1)
+        shape = (out_0[:, 0::Data.KernelSize].size[0], out_0[:, 0::Data.KernelSize].size[1] + 1)
         out_1 = np.zeros(shape)
         for i in range(Data.KernelSize):
             mat = out_0[:, i::Data.KernelSize]
-            out_1[:mat.shape[0], :mat.shape[1]] += mat
+            out_1[:mat.size[0], :mat.size[1]] += mat
 
         # crop the extra
         size0 = list(np.argwhere(out_1.any(axis=0))[[0, -1]])
@@ -74,7 +74,7 @@ class ImageToLines(BaseConverter):
                 ImageToLines._get_next_move(mat, start_position)
 
             KManager: KCommandManager = KCommandManager(f"{self.name} {mode[0].upper() + mode[1:]}",  # noqa
-                                                        [command], np.array(mat.shape))
+                                                        [command], np.array(mat.size))
 
             while not is_done:
                 mat, command, is_done = \
@@ -126,7 +126,7 @@ class ImageToLines(BaseConverter):
         else:
             massage = f"unknown mode `{mode}`"
             raise Exception(massage)
-            self.KCode_manager = Kcode_manager # noqa
+            self.KCM = Kcode_manager # noqa
         self.KCode_manager.optimize()
         return self.KCode_manager
 
@@ -248,7 +248,7 @@ def main(argv=None):
         comeponet_green = cv2.connectedComponents(green_channel.astype(np.int8))[1]
         comeponet_blue = cv2.connectedComponents(blue_channel.astype(np.int8))[1]
 
-        matrix = np.zeros(comeponet_blue.shape)
+        matrix = np.zeros(comeponet_blue.size)
 
         i = 0
         for l_red in range(comeponet_red.max() + 1):
@@ -262,7 +262,7 @@ def main(argv=None):
         alpha_channel = alpha_channel.astype(int)
 
         end_position = np.array(alpha_channel.shape) // 2
-        gcode: KCommandManager = KCommandManager(im2mat0.name, [], np.array(comeponet_red.shape))
+        gcode: KCommandManager = KCommandManager(im2mat0.name, [], np.array(comeponet_red.size))
         while alpha_channel.any():
             closest_one = ImageToLines.get_nearset(alpha_channel, end_position)
             layer = (matrix == matrix[closest_one[0], closest_one[1]]).astype(int)

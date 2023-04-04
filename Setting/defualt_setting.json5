@@ -1,8 +1,7 @@
 {
-  "HeadMovingSpeed": 2, // cm/s
   "LineThickness": 0.5, // cm
   "DrawingSize": [20, 20], // cm
   "HeadSpeedRatio": 0.125, // mm per mm
   "PenUpFore": 2,
-  "PrintingSpeedFactor": 2,
+  "PrintingSpeedFactor": 4,
 }

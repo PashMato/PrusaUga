@@ -5,7 +5,8 @@ import sys
 sys.path.append("/home/pash/PycharmProjects/PrushaUga")
 
 from PythonCore.image_to_kcommands import ImageToLines
-from PythonCore.k_command_manger import KCommandManager, generate_tests
+from PythonCore.svg2lines import Svg2Lines
+from PythonCore.k_command_manager import KCommandManager
 
 import Setting.get_settings as settings
 
@@ -16,16 +17,14 @@ def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", '--input', type=str, help="Input the file path")
     parser.add_argument("-w", '--write-to', type=str, help="Write gcode to a file path")
-    parser.add_argument("-p", '--plot', type=str, help="Plots the image", default="off", choices={'on', 'off'})
-    parser.add_argument("-t", '--test', type=str,
-                        help="Create a test and write it to the given path [--test input]. must be a directory")
-    parser.add_argument("-s", '--setting', type=float, help="the machine settings", default=1,
+    parser.add_argument("-p", '--plot', help="Plots the image", action='store_true')
+    parser.add_argument("-s", '--setting', type=float, help="the machine settings", default=5,
                         choices=settings.get_settings_options())
 
     parser.add_argument('--add', nargs=2, metavar=('(version, ', 'path)'), help="Add a setting by path")
     parser.add_argument('--remove', type=float, help="Remove a setting by path and name")
 
-    parser.add_argument('--list', type=str, help="Show all the possible settings", choices={'on', 'off'}, default='off')
+    parser.add_argument('--list', action='store_true', help="Show all the possible settings")
     parser.add_argument('--show', type=float, help="Show a certain setting", choices=settings.get_settings_options())
 
     parser.add_argument('--edit', type=float, choices=settings.get_settings_options(), help="Edit a setting Version")
@@ -39,27 +38,26 @@ def main(argv=None):
     args = parse_args(argv)
     settings.set_settings(args.setting)
 
-    if args.test is not None:
-        if not os.path.exists(args.test):
-            print(f"Error: path `{args.test}` doesn't exists")
-            exit(1)
-        if not os.path.isdir(args.test):
-            print(f"Error: path must be a directory (save 2 files)")
+    if args.input is not None:
+        if not os.path.exists(os.path.expanduser(args.input)):
+            print(f"Error: no such file as `{args.input}` ({os.path.expanduser(args.input)})")
             exit(1)
 
-        test1, test2 = generate_tests()
+        file_format = args.input.split(".")[-1]
+        if file_format == "png":
+            conv: ImageToLines = ImageToLines(args.input)
+        elif file_format == "svg":
+            conv: Svg2Lines = Svg2Lines(args.input)
+        else:
+            print(f"Error: file format `{file_format}` is not supported")
+            exit(1)
 
-        test1.write_file(args.test, save_outline=False)
-        test2.write_file(args.test, save_outline=False)
-
-    elif args.input is not None and os.path.exists(args.input):
-        im2mat: ImageToLines = ImageToLines(args.input)
-        gcode: KCommandManager = im2mat.get_k_code()
+        gcode: KCommandManager = conv.get_k_code()
 
         if args.write_to:
             gcode.write_file(args.write_to)
-        if args.plot == "on":
-            im2mat.k_show()
+        if args.plot:
+            conv.k_show()
     elif args.add is not None:
         v, path = args.add
         try:
@@ -95,12 +93,12 @@ def main(argv=None):
             if args.prop == "DrawingSize":
                 value = (int(args.value[0]), int(args.value[1]))
             else:
-                value = float(args.value)
+                value = float(args.value[0])
             settings.edit_setting(args.edit, args.prop, value)
         except():
             print(f"Error: cannot convert ({args.value}) to {settings.prop_options[args.prop]}")
             exit(1)
-    elif args.list == 'on':
+    elif args.list:
         print(settings.get_settings_options())
     elif args.show is not None:
         print(settings.set_settings(args.show))
