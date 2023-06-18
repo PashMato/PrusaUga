@@ -8,6 +8,9 @@ from PythonCore.image_to_kcommands import ImageToLines
 from PythonCore.svg2lines import Svg2Lines
 from PythonCore.k_command_manager import KCommandManager
 
+# import the ASCII UI
+from ASCII_logos import pash_studios, prusa_uga, cake, pash_studios_and_prusa_uga
+
 import Setting.get_settings as settings
 
 import argparse
@@ -18,7 +21,7 @@ def parse_args(argv):
     parser.add_argument("-i", '--input', type=str, help="Input the file path")
     parser.add_argument("-w", '--write-to', type=str, help="Write gcode to a file path")
     parser.add_argument("-p", '--plot', help="Plots the image", action='store_true')
-    parser.add_argument("-s", '--setting', type=float, help="the machine settings", default=5,
+    parser.add_argument("-s", '--setting', type=float, help="the machine settings", default=2.5,
                         choices=settings.get_settings_options())
 
     parser.add_argument('--add', nargs=2, metavar=('(version, ', 'path)'), help="Add a setting by path")
@@ -42,6 +45,9 @@ def main(argv=None):
         if not os.path.exists(os.path.expanduser(args.input)):
             print(f"Error: no such file as `{args.input}` ({os.path.expanduser(args.input)})")
             exit(1)
+
+        print(pash_studios_and_prusa_uga)  # UI
+        print(f"Using setting `{args.setting}` to generate gcode (version 1.0)")
 
         file_format = args.input.split(".")[-1]
         if file_format == "png":
@@ -103,6 +109,10 @@ def main(argv=None):
     elif args.show is not None:
         print(settings.set_settings(args.show))
     else:
+        # UI
+        print(cake)
+        print(pash_studios_and_prusa_uga)
+
         print("Run with -h or --help to get help")
         exit(1)
 

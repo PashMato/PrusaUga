@@ -13,6 +13,8 @@ class Data:
     ShiftX = 0
     ShiftY = 0
 
+    SettingsVersion = 2.5
+
     @staticmethod
     def set_up(size: np.array):
         Data.KernelSize = np.max(np.int_(size / (Data.DrawingSize / Data.LineThickness))) + 1
