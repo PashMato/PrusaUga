@@ -48,7 +48,7 @@ if you mant to create your own settings (mainly to change the printing resolutio
 
 `{
   "LineThickness": 0.5, // cm
-  "DrawingSize": [20, 20], // cm
+"DrawingSize": [20, 20], // cm
   "HeadSpeedRatio": 0.125, // mm per mm
   "PenUpFore": 2,
   "PrintingSpeedFactor": 4,
@@ -56,13 +56,13 @@ if you mant to create your own settings (mainly to change the printing resolutio
 
 LineThickness: how thick is your Lines in cm (metter only in .PNG)
 
-DrawingSize: 
+DrawingSize: your drawing size cm (Metter only in .PNG)
 
-HeadSpeedRatio
+HeadSpeedRatio: how fast the head is 'pooping' the suse 
 
-PenUpFore
+PenUpFore: how much to wait after a penup
 
-PrintingSpeedFactor
+PrintingSpeedFactor: the printing speed 
 
 ## Comments
 
