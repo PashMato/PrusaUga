@@ -2,7 +2,7 @@
 #### Make your own drawing on any flat cake, even if you suck at drawing
 
 
-## adding to console
+## Adding to console
 
 `console.py` is the console file, you should do a little twicks in the file acording to your system.
 
@@ -69,5 +69,3 @@ PrintingSpeedFactor: the printing speed
 .PNG support is 'working' but it lokes way better in .SVG
 
 there is no UI yet but I would add it sometimes
-
-
