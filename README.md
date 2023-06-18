@@ -42,7 +42,27 @@ writing to a file is very simple just write `-w <path/(path + file name)>` the s
 
 You can input files by `-i <path + file name>.svg`
 
+## Creating a new setting 
 
+if you mant to create your own settings (mainly to change the printing resolution) you first create  your setting file (depends on your plagins) by default it 
+
+`{
+  "LineThickness": 0.5, // cm
+  "DrawingSize": [20, 20], // cm
+  "HeadSpeedRatio": 0.125, // mm per mm
+  "PenUpFore": 2,
+  "PrintingSpeedFactor": 4,
+}`
+
+LineThickness: how thick is your Lines in cm (metter only in .PNG)
+
+DrawingSize: 
+
+HeadSpeedRatio
+
+PenUpFore
+
+PrintingSpeedFactor
 
 ## Comments
 
