@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="PrusaUgaLogo.svg"
+   inkscape:export-filename="/home/pash/PashStudios"
+   inkscape:export-xdpi="120.95238"
+   inkscape:export-ydpi="120.95238"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.72159091"
+     inkscape:cx="488.50394"
+     inkscape:cy="723.40157"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <rect
+       x="111.17126"
+       y="320.06689"
+       width="708.97627"
+       height="157.0452"
+       id="rect36755" />
+    <rect
+       x="87.899536"
+       y="80.345957"
+       width="412.50945"
+       height="103.3596"
+       id="rect17913" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       transform="matrix(0.37279439,0.08248447,-0.07030614,0.42472984,17.81898,170.90223)"
+       id="text17911"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:87.0761px;line-height:1.25;font-family:Dhurjati;-inkscape-font-specification:'Dhurjati, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect17913);stroke-linecap:square"><tspan
+         x="87.900391"
+         y="138.21372"
+         id="tspan13057">PrusaUga</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.34069264,-0.05215985,0.04459852,0.39845434,-44.092951,-23.466662)"
+       id="text36753"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:100px;line-height:1.25;font-family:Dhurjati;-inkscape-font-specification:'Dhurjati, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect36755);stroke-width:4.0252;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square"><tspan
+         x="111.17188"
+         y="386.52324"
+         id="tspan13059">Pash Studios</tspan></text>
+    <circle
+       id="path5620"
+       style="fill:#ff2a2a;stroke:#000000;stroke-width:0.264583"
+       cx="173.99374"
+       cy="115.69535"
+       r="0.00015918286" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 167.03042,109.03414 -150.597729,20.3918 0.921566,78.54815 167.301993,37.19164 -0.91939,-78.57826 c 5.89664,-22.04275 5.4943,-42.51518 -16.70644,-57.55333 z"
+       id="path1533"
+       sodipodi:nodetypes="cccccc" />
+    <path
+       style="fill:#00ffff;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 183.73686,166.58747 16.432691,129.42594"
+       id="path1772" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 184.65842,245.13562 c 1.29242,-7.69252 2.8302,-15.21627 2.79812,-23.45103"
+       id="path1875"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 187.45654,221.68459 -0.53149,-78.46121"
+       id="path3457"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 16.432388,129.42599 c 4.581055,27.95893 14.593958,3.32593 20.575032,6.12971 11.07399,4.90948 -1.852609,20.64425 8.3818,17.13294 9.166479,6.56665 -0.354062,-13.96549 12.868513,-7.11456 2.812146,1.42706 6.500192,3.14643 9.840788,3.69801 -0.528163,7.46982 8.408072,0.64934 12.781185,0.71872 4.786559,0.0741 7.684353,3.80046 11.378368,5.9714 2.964926,0.17123 5.943704,0.4258 8.743376,-0.39659 7.61257,-3.05007 3.47857,-6.5621 9.81886,4.02065 1.42369,-1.82704 -0.14061,-4.92097 11.40886,-2.06359 11.63551,2.99722 -5.43269,15.51666 5.93525,16.71909 9.17281,0.70224 -1.13879,-21.19514 12.05583,-9.73415 4.63469,3.85919 8.19607,5.92477 12.48663,1.11791 1.61928,1.21653 3.1302,2.54652 7.43834,0.94663 10.21767,-3.53617 1.11082,17.99632 21.32524,6.08723 0.78662,-0.93297 1.57791,-1.84524 2.51484,-2.10893 0.39125,-0.0207 0.78251,-0.13174 1.17379,0.30738 -0.0669,-1.02338 -0.009,-1.99749 0.0632,-2.96581 l 0.64488,2.07237 c 0.014,-2.95319 -0.16004,-8.33128 0.0976,-8.15465 0.59452,-0.59386 1.02671,-2.82834 1.05893,-4.43197"
+       id="path6526"
+       sodipodi:nodetypes="ccccccccccccccccccccc" />
+  </g>
+</svg>

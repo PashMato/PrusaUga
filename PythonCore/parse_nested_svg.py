@@ -16,8 +16,8 @@ class NestedSvgParser:
         self.svg = self.content.getElementsByTagName('svg')[0]
         self.all_g = self.svg.getElementsByTagName('g')
         self.size = np.array([
-            int(self.content.getElementsByTagName('svg')[0].attributes.get('height').value.rstrip('m')),
-            int(self.content.getElementsByTagName('svg')[0].attributes.get('width').value.rstrip('m'))])
+            int(self.content.getElementsByTagName('svg')[0].attributes.get('width').value.rstrip('m')),
+            int(self.content.getElementsByTagName('svg')[0].attributes.get('height').value.rstrip('m'))])
         self.all_paths = self.content.getElementsByTagName('path')
         self.parsed_paths = []
         self.lines = []

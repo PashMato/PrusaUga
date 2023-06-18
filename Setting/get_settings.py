@@ -42,6 +42,7 @@ def set_settings(version: float) -> dict:
         data = json5.load(conf)
 
     Data.set_setting(data)
+    Data.SettingsVersion = version
     return data
 
 
