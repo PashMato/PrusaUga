@@ -1,0 +1,6 @@
+**/*.pyc
+**/__pycache__
+**/*.svg
+.idea/
+alias_config.bash
+settings/setting_dict.json

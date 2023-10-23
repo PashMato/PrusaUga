@@ -1,0 +1,9 @@
+{
+  "HeadSpeedRatio": 0.125, // mm per mm
+  "PenUpFore": 2,
+  "PrintingSpeedFactor": 4,
+  "TouchDownLength": -1,
+  WaitingTime: 1,
+  StaticSpeed: 400,
+  WaitingSpeed: 10,
+}
