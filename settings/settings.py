@@ -29,7 +29,8 @@ def abs_path(path: str) -> str:
 
 def get_all_versions() -> set[float]:
     """
-    :returns all the possibles versions
+    Return a set of all versions
+    :return: all the possibles versions
     """
     settings: pd.DataFrame = pd.read_json(abs_path("setting_dict.json")) \
         .reset_index() \

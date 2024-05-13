@@ -18,6 +18,9 @@ class Svg2Lines(BaseConverter):
         self.size = self.parse_svg.size.copy()
 
     def get_lines(self, scale: float = 4):
+        """
+        compute the lines and write them in to the class' GCodeManager instance
+        """
         self.lines = []
 
         raw_data = self.parse_svg.get_arrays()
@@ -26,7 +29,9 @@ class Svg2Lines(BaseConverter):
             arr = np.array(stroke).T
 
             if np.any(arr < 0) or np.any(arr > self.size[np.newaxis, :]):
-                raise CanvasError(f"Drawing too big could not fit drawing into canvas {self.size}")
+                raise CanvasError(f"Drawing too big could not fit drawing into canvas {self.size}\n" +
+                                  "Remember the if this error appears for no reasons it most probably that you are dealing " +
+                                  "the a complex shape that you need to convert to path")
 
             # making sure that the first commands is goto
             is_printing = np.ones(arr.shape[0])[:, np.newaxis]

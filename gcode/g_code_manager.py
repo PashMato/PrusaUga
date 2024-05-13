@@ -13,7 +13,7 @@ class GCodeManager:
     def __init__(self, name: str, commends: list[np.ndarray], size: np.ndarray):
         """
         :param name: name
-        :param commends: commands list[np.array([<X>, <Y>, <is_printing>])}
+        :param commends: commands list[np.array([<X>, <Y>, <is_printing>], float)}
         :param size: size
         """
         self.name = name
@@ -51,7 +51,7 @@ class GCodeManager:
     def get_g_code(self) -> str:
         """
         generate gcode
-        :return: the gcode
+        :return: the gcode as a string
         """
         # update the mode
         Data.update_mode(self.size)
@@ -69,12 +69,12 @@ class GCodeManager:
         all_f_str[arr[:, 2] == 0] = ""
 
         # all X positions
-        all_x = arr[:, 0] * Data.MMPerPoint + Data.ShiftX
+        all_x = arr[:, 0] * Data.Scale + Data.ShiftX
         all_x_str = np.char.add(" X", all_x.astype(str))
         all_x_str[np.where(np.ediff1d(arr[:, 0], to_begin=1) == 0)] = ""
 
         # all Y positions
-        all_y = arr[:, 1] * Data.MMPerPoint + Data.ShiftY
+        all_y = arr[:, 1] * Data.Scale + Data.ShiftY
         all_y_str = np.char.add(" Y", all_y.astype(str))
         all_y_str[np.where(np.ediff1d(arr[:, 1], to_begin=1) == 0)] = ""
 
@@ -132,8 +132,14 @@ class GCodeManager:
         self.gcode = comments + meta_data + code + end_data
         return self.gcode
 
-    def write_file(self, file_name: str, save_outline: bool = True):
-        full_path = os.path.expanduser(file_name)
+    def write_file(self, dir_path: str, save_outline: bool = True):
+        """
+        Saves the gcode in a file properly
+        :param: dir_path the directory to save in the files
+        :param: save_outline if true save the gcode outline (just going around the canvas edge)
+        """
+
+        full_path = os.path.expanduser(dir_path)
 
         name = full_path.split('/')[-1].replace(" ", "-").split('.')[0]
         path = '/'.join(full_path.split('/')[:-1])
@@ -159,7 +165,14 @@ class GCodeManager:
                 file.close()
                 message("Done Saving", message_type="Info")
 
-    def g_show(self, color="b", head_up_color="r", size=".", linewidth="1.5") -> None:
+    def g_show(self, color="b", head_up_color="r", size=".", line_width="1.5") -> None:
+        """
+        Plots the gcode in matplotlib.pyplot
+        :param color: color of the gcode
+        :param head_up_color: color of the head ups
+        :param size: size of the gcode
+        :param line_width: line width of the gcode
+        """
         self.optimize()
 
         plt.figure()
@@ -198,7 +211,7 @@ class GCodeManager:
         arr[pen_up_i] = np.NAN
         all_x, all_y = list(arr[:, :2].T)
 
-        plt.plot(all_x, all_y, color + size, linestyle="-", linewidth=linewidth)  # plot the non-pen-ups
+        plt.plot(all_x, all_y, color + size, linestyle="-", linewidth=line_width)  # plot the non-pen-ups
 
         plt.plot(all_penup_x, all_penup_y, head_up_color + size, linestyle="-.")  # plot the pen-ups
 

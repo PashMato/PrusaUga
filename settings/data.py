@@ -6,8 +6,9 @@ import numpy as np
 
 
 class Data:
-    ShiftX = 0
-    ShiftY = 0
+    ShiftX = 0 # mm
+    ShiftY = 0 # mm
+    PrinterSize = np.array([290, 235]) # (X,Y) mm
 
     # settings properties
     PenUpFore = 1  # the given fore after a penup
@@ -16,7 +17,7 @@ class Data:
     TouchDownLength = 0  # the touch-down length
     WaitingTime = 1
 
-    MMPerPoint = 1  # mm
+    Scale = 1  # mm
 
     StaticSpeed = 400
     WaitingSpeed = 10
@@ -30,7 +31,9 @@ class Data:
         set the shift according to the size and mode
         :param size: canvas size
         """
-        if Data.Mode == 0:
+        if Data.Mode == -1:
+            Data.ShiftX, Data.ShiftY = Data.PrinterSize / 2 - size / 2
+        elif Data.Mode == 0:
             Data.ShiftX, Data.ShiftY = -size / 2
         elif Data.Mode == 1:
             Data.ShiftX, Data.ShiftY = -size[0], 0

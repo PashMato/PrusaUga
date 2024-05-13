@@ -68,8 +68,8 @@ def edit_version(version: float, prop, value):
 
 
 def set_mode(mode: int = 0):
-    if mode not in {0, 1, 2, 3, 4}:
-        raise ValueError('Mode must be in {0, 1, 2, 3, 4} not ' + str(mode))
+    if mode not in {-1, 0, 1, 2, 3, 4}:
+        raise ValueError(f'Mode must be in {-1, 0, 1, 2, 3, 4} not `{str(mode)}`')
 
     Data.Mode = mode
     mode_help = get_mode_drawing()

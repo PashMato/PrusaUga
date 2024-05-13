@@ -8,6 +8,7 @@ from settings.data import Data
 def create_metadata(ap_time, size) -> str:
     return f"""
 ; meta data
+G92 X0 Y0 Z0 (set the current position to zero)
 G17 (use XY plane)
 G21 (all units in mm)
 G90 (use absolute position)
@@ -19,7 +20,7 @@ G1 F{Data.StaticSpeed}
 
 ; 'popping' a little bit of sauce
 
-G0 X{size[0] + Data.ShiftX} Y{size[1] + Data.ShiftY} 
+G0 X{(size[0] + Data.ShiftX) * (Data.Mode != -1)} Y{(size[1] + Data.ShiftY) * (Data.Mode != -1)} 
 G1 F{Data.WaitingSpeed} Z3
 G1 F{Data.StaticSpeed} Z{Data.PenUpFore}
 G1 F{Data.StaticSpeed * Data.HeadSpeedRatio} Z0
@@ -30,8 +31,20 @@ G1 F{Data.StaticSpeed * Data.HeadSpeedRatio} Z0
 
 
 def get_mode_drawing() -> str:
-    if Data.Mode == 0:
-        mode_help = """
+    if Data.Mode == -1:
+        return """
+;  X <- -1
+;
+;         +-------------+
+;         |             | 
+;         |             |
+;         |             | 
+;         +-------------+
+;
+;
+                """
+    elif Data.Mode == 0:
+        return """
 ;         +-------------+
 ;         |             | 
 ;         | 0 -> X <- 0 |
@@ -39,7 +52,7 @@ def get_mode_drawing() -> str:
 ;         +-------------+
         """
     elif Data.Mode == 1:
-        mode_help = """
+        return """
 ;    1 -> X-------------+
 ;         |             | 
 ;         |             | 
@@ -47,7 +60,7 @@ def get_mode_drawing() -> str:
 ;         +-------------+
         """
     elif Data.Mode == 2:
-        mode_help = """
+        return """
 ;         +-------------X <- 2
 ;         |             | 
 ;         |             | 
@@ -55,7 +68,7 @@ def get_mode_drawing() -> str:
 ;         +-------------+
         """
     elif Data.Mode == 3:
-        mode_help = """
+        return """
 ;         +-------------+
 ;         |             | 
 ;         |             | 
@@ -63,15 +76,13 @@ def get_mode_drawing() -> str:
 ;         +-------------X <- 3
         """
     else:
-        mode_help = """
+        return """
 ;             +-------------+
 ;             |             | 
 ;             |             | 
 ;             |             | 
 ;        4 -> X-------------+
         """
-    return mode_help
-
 
 def create_comments(label: str, test=False, size=("None", "None")) -> str:
     a_test = ""
@@ -96,6 +107,7 @@ def create_g_test(label: str, size) -> str:
     return (create_comments(label, test=True, size=size) +
 f"""\n
 ; meta data
+G92 X0 Y0 Z0 (set the current position to zero)
 G17 (use XY plane)
 G21 (all units in mm)
 G90 (use absolute position)
@@ -114,4 +126,6 @@ G0 X0 Y0
 
 
 def create_end_data() -> str:
+    if Data.Mode == -1:
+        return f"\nG0 X0 Y0"
     return f"\nG0 X{Data.ShiftX} Y{Data.ShiftY}\n"

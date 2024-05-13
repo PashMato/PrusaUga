@@ -77,7 +77,7 @@ class NestedSvgParser:
         if g in self._known_gs:
             return self._known_gs[g]
 
-        cur_trans = 1
+        cur_trans = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         while g is not None and g is not self.svg:
             pre_trans = self.parse_transform(g)
             cur_trans = np.dot(pre_trans, cur_trans)
